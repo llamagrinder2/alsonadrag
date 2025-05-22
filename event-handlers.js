@@ -1,6 +1,6 @@
 // event-handlers.js
 import { diceRoll, performAttack, nextMob, prevMob, death } from './game-logic.js';
-import { buyPotion } from './healing.js';
+import { usePotion, buyPotion } from './healing.js';
 import { thirdEye, boostSpell } from './spells.js';
 import { enterShop, exitShop, buyShopItem, shopReset } from './shop.js';
 import { resetGame as fullResetGame } from './main.js'; // Importáljuk a main.js-ből a teljes reset-et
