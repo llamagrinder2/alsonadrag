@@ -4,7 +4,15 @@ import { updateUI, appendToLog, showFloatingText, resetFightDisplay } from './ui
 import { checkPlayerLVUp, death } from './game-logic.js'; // checkPlayerLVUp és death jön a game-logic.js-ből
 import { bossCountUpdate } from './boss-logic.js'; // <-- bossCountUpdate a boss-logic.js-ből!
 
+
 const healingButtonsContainer = document.getElementById('healingButtonsContainer');
+
+// Új: Potion árak definiálása (vagy áthelyezhető game-state.js-be, ha sok hasonló van)
+const potionPrices = {
+    1: 20,
+    2: 40,
+    3: 80
+};
 
 export function usePotion(potionLevel) {
     let healingMultiplier = 0;
@@ -102,6 +110,27 @@ export function usePotion(potionLevel) {
     resetFightDisplay();
     updateUI();
 }
+
+// ÚJ FUNKCIÓ: buyPotion (poti vásárlás)
+export function buyPotion(potionLevel) {
+    const price = potionPrices[potionLevel];
+
+    if (!price) {
+        appendToLog("Invalid potion level for purchase.");
+        return;
+    }
+
+    if (player.bank < price) {
+        alert(`Not enough money for Potion LV${potionLevel}! Requires ${price} Gold.`);
+        return;
+    }
+
+    player.bank -= price;
+    player.potions[potionLevel]++;
+    appendToLog(`Bought Potion LV${potionLevel} for ${price} Gold.`);
+    updateUI(); // Frissíti a UI-t (pénz, poti darabszám)
+}
+
 
 export function createHealingButtons() {
     healingButtonsContainer.innerHTML = '';
