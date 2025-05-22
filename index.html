@@ -1,45 +1,137 @@
-<div class="main-area">
-    <div class="left-panel">
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel RPG - Harc</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="game-container">
+        <div class="top-info">
+            <div class="info-cell"></div>
+            <div class="info-cell"></div>
+            <div class="info-cell"></div>
+            </div>
+
+        <div class="main-area">
+            <div class="left-panel">
+                <div class="go-mob-section">
+                    <button id="goMobButton">Go Mob</button>
+                </div>
+
+                <div class="boss-counter">
+                    <span id="bossCounterText">X mobs left until the Boss.</span>
+                </div>
+
+                <div class="level-navigation">
+                    <button id="descendLevelButton">Descend Level</button>
+                    <button id="ascendLevelButton">Ascend Level</button>
+                    </div>
+
+                <div id="healingButtonsContainer"></div>
+            </div>
+
+            <div class="center-panel">
+                <div class="hp-bars">
+                    <div class="hp-bar-container">
+                        <div class="hp-bar player-hp-bar"></div>
+                        <span class="hp-text player-hp-text">Player HP: 100/100</span>
+                    </div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar mob-hp-bar"></div>
+                        <span class="hp-text mob-hp-text">Mob HP: 50/50</span>
+                    </div>
+                </div>
+
+                <div class="roll-section">
+                    <button id="rollButton">Roll</button>
+                    <div class="roll-results">
+                        <div class="roll-display">You: <span id="playerRollResult">0</span></div>
+                        <div class="roll-display">Mob: <span id="mobRollResult">0</span></div>
+                    </div>
+                    <div class="damage-display">
+                        <span id="playerDamageDisplay"></span>
+                        <span id="mobDamageDisplay"></span>
+                    </div>
+                </div>
+
+                <div class="item-sections">
+                    <div class="potions-section">
+                        <div class="potion-slot">
+                            <span class="potion-icon red"></span>
+                            <span id="potion1Count">1</span>
+                            <button class="buy-potion-btn" data-potion-level="1">Buy LV1 (20)</button>
+                        </div>
+                        <div class="potion-slot">
+                            <span class="potion-icon blue"></span>
+                            <span id="potion2Count">1</span>
+                            <button class="buy-potion-btn" data-potion-level="2">Buy LV2 (40)</button>
+                        </div>
+                        <div class="potion-slot">
+                            <span class="potion-icon purple"></span>
+                            <span id="potion3Count">1</span>
+                            <button class="buy-potion-btn" data-potion-level="3">Buy LV3 (80)</button>
+                        </div>
+                    </div>
+
+                    <div class="spell-section">
+                        <button id="thirdEyeButton">Third Eye</button>
+                        <button id="boostSpellButton">Boost Spell</button>
+                    </div>
+                </div>
+
+                <div class="money-icon">
+                    Bank: <span id="bankAmount">0</span> Gold
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="log-area">
+                    <pre id="gameLog"></pre>
+                </div>
+            </div>
         </div>
 
-    <div class="center-panel">
-        <div class="hp-bars">
+        <div class="bottom-buttons">
+            <button id="enterShopButton">Enter Shop</button>
             </div>
 
-        <div class="roll-section">
+        <button id="deathButton">YOU DIED!</button>
+    </div>
+
+    <div id="shopModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Shop</h2>
+            <div class="shop-items-container">
+                <div class="shop-item" id="itemDagger">
+                    <span>Dagger - +5 ATK</span>
+                    <button class="buy-item-btn" data-item="dagger">Buy (100 Gold)</button>
+                    <div class="item-lock" id="lock1">ITEM LOCKED</div>
+                </div>
+                <div class="shop-item" id="itemLeatherVest">
+                    <span>Leather Vest - +0.1 ARMOR</span>
+                    <button class="buy-item-btn" data-item="leatherVest">Buy (150 Gold)</button>
+                    <div class="item-lock" id="lock2">ITEM LOCKED</div>
+                </div>
+                <div class="shop-item" id="itemWhetstone">
+                    <span>Whetstone - +2 ATK</span>
+                    <button class="buy-item-btn" data-item="whetstone">Buy (50 Gold)</button>
+                    <div class="item-lock" id="lock3">ITEM LOCKED</div>
+                </div>
+                <div class="shop-item" id="itemLeather2">
+                    <span>Leather Vest 2 - +0.2 ARMOR</span>
+                    <button class="buy-item-btn" data-item="leather2">Buy (200 Gold)</button>
+                    <div class="item-lock" id="lock4">ITEM LOCKED</div>
+                </div>
             </div>
-
-        <div class="item-sections">
-            <div class="potions-section">
-                <div class="potion-slot">
-                    <span class="potion-icon red"></span>
-                    <span id="potion1Count">1</span>
-                    <button class="buy-potion-btn" data-potion-level="1">Buy LV1 (20)</button>
-                </div>
-                <div class="potion-slot">
-                    <span class="potion-icon blue"></span>
-                    <span id="potion2Count">1</span>
-                    <button class="buy-potion-btn" data-potion-level="2">Buy LV2 (40)</button>
-                </div>
-                <div class="potion-slot">
-                    <span class="potion-icon purple"></span>
-                    <span id="potion3Count">1</span>
-                    <button class="buy-potion-btn" data-potion-level="3">Buy LV3 (80)</button>
-                </div>
-            </div>
-
-            <div class="spell-section">
-                </div>
-        </div>
-
-        <div id="healingButtonsContainer">
-            </div>
-
-        <div class="money-icon">
-            Bank: <span id="bankAmount">0</span> Gold
+            <button id="shopResetButton">Shop Reset</button>
+            <button id="exitShopButton">Exit Shop</button>
         </div>
     </div>
 
-    <div class="right-panel">
-        </div>
-</div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
