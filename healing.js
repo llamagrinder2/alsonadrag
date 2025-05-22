@@ -1,8 +1,8 @@
 // healing.js
 import { player, mob, gameModifiers } from './game-state.js';
 import { updateUI, appendToLog, showFloatingText, resetFightDisplay } from './ui-manager.js';
-import { bossCountUpdate, checkPlayerLVUp, death } from './game-logic.js'; // Import death
-
+import { checkPlayerLVUp, death } from './game-logic.js'; // checkPlayerLVUp és death jön a game-logic.js-ből
+import { bossCountUpdate } from './boss-logic.js'; // <-- bossCountUpdate a boss-logic.js-ből!
 
 const healingButtonsContainer = document.getElementById('healingButtonsContainer');
 
