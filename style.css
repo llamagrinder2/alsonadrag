@@ -1,178 +1,159 @@
-/*
- * style.css
- * Ez a fájl tartalmazza a játék felhasználói felületének stílusait.
- * A cél a megadott Excel interfész képének reprodukálása webes környezetben.
- */
-
-/* Alapvető globális stílusok */
+/* General Body and Game Container Styles */
 body {
-    background-color: #000; /* Fekete háttér a képen látottak alapján */
-    color: #fff; /* Fehér szöveg, hogy olvasható legyen a sötét háttéren */
-    font-family: 'Courier New', monospace; /* Konzol-szerű, retro hatású betűtípus */
+    background-color: #000; /* Fekete háttér */
+    color: #00FF00; /* Zöld szöveg, mint az Excelben */
+    font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Teljes képernyő magasság */
     margin: 0;
-    display: flex; /* Flexbox a tartalom középre igazításához */
-    justify-content: center; /* Vízszintes középre igazítás */
-    align-items: center; /* Függőleges középre igazítás */
-    min-height: 100vh; /* Minimális magasság a teljes nézetablak magassága */
-    overflow: hidden; /* Megakadályozza a scrollbar megjelenését, ha nem szükséges */
+    overflow: hidden; /* Elrejti a scrollbart, ha nincs rá szükség */
 }
 
-/* Játék konténer (a teljes játékfelület) */
 .game-container {
-    display: grid; /* Grid layout a fő területek elrendezéséhez */
-    grid-template-rows: auto 1fr auto; /* Felső infó sor, fő játéktér, alsó gombok sor */
-    width: 90vw; /* Szélesség a nézetablak 90%-a */
-    height: 90vh; /* Magasság a nézetablak 90%-a */
-    border: 1px solid #333; /* Vékony, sötét keret */
-    box-sizing: border-box; /* A padding és border beleszámít a méretbe */
-    padding: 10px; /* Belső térköz */
-    gap: 10px; /* Elemek közötti térköz a gridben */
+    display: grid;
+    grid-template-rows: auto 1fr auto; /* Felső sáv, fő terület, alsó sáv */
+    grid-template-columns: 1fr;
+    width: 95vw; /* Kicsit keskenyebb, mint a képernyő */
+    max-width: 1200px; /* Maximum szélesség */
+    height: 95vh; /* Kicsit kisebb, mint a képernyő */
+    background-color: #111; /* Sötétszürke háttér a játéknak */
+    border: 2px solid #00FF00; /* Zöld keret */
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); /* Zöld fényhatás */
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden; /* Ne lógjanak ki a tartalmak */
 }
 
-/* Felső információs sáv (a sok kis fekete cella) */
+/* Top Info Section */
 .top-info {
-    display: grid;
-    grid-template-columns: repeat(20, 1fr); /* 20 egyenlő szélességű oszlop */
-    gap: 2px; /* Kisebb térköz a cellák között */
-    height: 30px; /* Fix magasság */
+    display: flex;
+    justify-content: space-around;
+    padding: 5px 0;
+    border-bottom: 1px solid #00FF00;
+    margin-bottom: 10px;
 }
 
 .info-cell {
-    border: 1px solid #333; /* Cellák elválasztása */
-    background-color: #111; /* Sötétebb háttér */
+    background-color: #004400; /* Sötétebb zöld a celláknak */
+    border: 1px solid #00FF00;
+    padding: 5px 10px;
+    flex-grow: 1; /* Egyenletesen elosztja a helyet */
+    text-align: center;
+    margin: 0 2px;
+    min-width: 50px; /* Minimális szélesség a celláknak */
 }
 
-/* Fő játéktér (bal, középső, jobb panel) */
+/* Main Area Layout */
 .main-area {
     display: grid;
-    grid-template-columns: 0.2fr 1fr 0.5fr; /* Arányos oszlopszélességek: bal (kicsi), középső (nagy), jobb (közepes) */
+    grid-template-columns: 0.5fr 1fr 0.5fr; /* Bal panel, középső panel, jobb panel */
     gap: 10px;
-    height: calc(100% - 20px); /* Kicsit kevesebb, hogy elférjen a padding */
+    flex-grow: 1; /* Kitölti a rendelkezésre álló helyet */
+    overflow: hidden; /* Fontos, hogy a belső panelek ne lógjanak ki */
 }
 
-/* Panelek alapstílusa */
+/* Panel Styles */
 .left-panel, .center-panel, .right-panel {
-    border: 1px solid #333; /* Egységes keret */
-    padding: 10px; /* Belső térköz */
-    display: flex; /* Flexbox a belső elemek elrendezéséhez */
-    flex-direction: column; /* Elemek egymás alatt */
-    gap: 10px; /* Elemek közötti térköz */
-    background-color: #111; /* Sötétebb háttér */
-}
-
-/* Bal panel specifikus stílusok */
-.left-panel {
-    justify-content: flex-start; /* Elemek a tetején kezdődnek */
-    align-items: flex-start; /* Elemek balra igazítva */
-}
-
-.go-mob-section, .boss-counter, .level-navigation {
-    width: 100%; /* Szélesség kitöltése */
-    margin-bottom: 10px; /* Alulra térköz */
-}
-
-.boss-counter {
-    text-align: center; /* Szöveg középre */
-    font-size: 0.9em; /* Kisebb betűméret */
-}
-
-.level-navigation {
+    background-color: #002200; /* Még sötétebb háttér a paneleknek */
+    border: 1px solid #00FF00;
+    padding: 10px;
+    overflow-y: auto; /* Görgetés, ha túlcsordul a tartalom */
+    box-sizing: border-box;
     display: flex;
-    justify-content: space-around; /* Gombok egyenletesen elosztva */
+    flex-direction: column; /* Tartalom oszlopban */
 }
 
-/* Középső panel elemek */
 .center-panel {
-    justify-content: space-between; /* Elemek között elosztva a hely */
-    align-items: center; /* Elemek középre igazítva */
+    align-items: center;
+    justify-content: flex-start; /* Felülről kezdődik a tartalom */
+    text-align: center;
+    overflow-y: auto;
 }
 
-/* Életerő sávok konténere */
+/* HP Bars */
 .hp-bars {
-    width: 90%; /* Szélesség a panel 90%-a */
+    width: 100%;
     margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .hp-bar-container {
-    width: 100%;
-    background-color: #555; /* A sáv háttérszíne, amikor üres */
-    height: 25px; /* Sáv magassága */
-    margin-bottom: 5px;
-    position: relative; /* A szöveg pozícionálásához */
-    border: 1px solid #777;
+    width: 80%; /* HP sávok szélessége */
+    background-color: #333;
+    border: 1px solid #00FF00;
+    height: 25px;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
 }
 
 .hp-bar {
     height: 100%;
-    transition: width 0.3s ease-in-out; /* Simább átmenet a szélesség változásakor */
+    width: 100%;
+    background-color: red;
+    transition: width 0.5s ease-out;
 }
 
 .player-hp-bar {
-    background-color: #0000FF; /* Kék a játékos HP sávja */
+    background-color: rgb(84, 134, 53); /* Zöld HP sáv */
 }
 
 .mob-hp-bar {
-    background-color: #00FF00; /* Zöld a mob HP sávja */
+    background-color: rgb(134, 53, 53); /* Piros HP sáv */
 }
 
 .hp-text {
-    position: absolute; /* Abszolút pozícionálás a konténerhez képest */
-    width: 100%;
-    text-align: center;
+    position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Középre igazítás (transzformációval) */
+    transform: translate(-50%, -50%);
+    color: white;
     font-weight: bold;
-    color: #fff;
-    text-shadow: 1px 1px 2px #000; /* Szöveg árnyék a jobb olvashatóságért */
+    text-shadow: 1px 1px 2px black;
+    z-index: 1;
 }
 
-/* Kockadobás szekció */
+/* Roll Section */
 .roll-section {
+    margin-top: 20px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
 }
 
 .roll-results {
     display: flex;
-    gap: 20px; /* Két eredmény közötti térköz */
-    font-size: 1.2em; /* Nagyobb betűméret */
+    gap: 20px;
+    font-size: 1.2em;
 }
-
-.roll-display {
-    border: 1px solid #777; /* Keret a kocka eredményeknek */
-    padding: 5px 10px;
-    background-color: #222;
-}
-
 
 .damage-display {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 1.1em;
+    min-height: 20px; /* Helyfoglalás a sebzés kijelzésnek */
+    color: orange;
+    font-weight: bold;
 }
 
-/* Pénz ikon */
-.money-icon {
-    font-size: 1.5em;
-    margin-top: auto; /* A panel aljára igazítja */
-    margin-bottom: 20px;
-}
-
-/* Potions és Spells szekciók */
+/* Item Sections (Potions and Spells) */
 .item-sections {
     display: flex;
+    justify-content: space-around;
     width: 100%;
-    justify-content: space-around; /* Egyenletes elosztás */
+    margin-top: 20px;
+    gap: 10px;
 }
 
 .potions-section, .spell-section {
+    border: 1px solid #00FF00;
+    padding: 10px;
+    background-color: #003300;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Elemeink oszlopban */
     gap: 5px;
     align-items: center;
 }
@@ -186,147 +167,154 @@ body {
 .potion-icon {
     width: 20px;
     height: 20px;
-    border: 1px solid #555;
+    border: 1px solid #00FF00;
+    display: inline-block;
 }
 
 .potion-icon.red { background-color: red; }
-.potion-icon.blue { background-color: deepskyblue; }
-.potion-icon.purple { background-color: violet; }
+.potion-icon.blue { background-color: blue; }
+.potion-icon.purple { background-color: purple; }
 
-/* Log terület (jobb panel) */
+/* Money Display */
+.money-icon {
+    margin-top: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: gold;
+}
+
+/* Game Log */
 .log-area {
-    width: 100%;
-    height: 100%;
-    background-color: #222; /* Sötétebb háttér */
-    overflow-y: auto; /* Függőleges görgő sáv, ha sok a szöveg */
-    border: 1px solid #444;
+    flex-grow: 1;
+    background-color: #001100; /* Nagyon sötét zöld */
+    border: 1px solid #00FF00;
     padding: 5px;
-    box-sizing: border-box;
-}
-
-#gameLog {
-    white-space: pre-wrap; /* Megőrzi a sortöréseket és szóközöket */
     font-size: 0.9em;
-    color: #eee; /* Világosabb szöveg */
+    overflow-y: auto;
+    white-space: pre-wrap; /* Sortörés, ha hosszú a szöveg */
+    max-height: 100%; /* Kitölti a rendelkezésre álló helyet */
 }
 
-/* Gombok alapstílusa */
+/* Buttons */
 button {
-    background-color: #333;
-    color: #fff;
-    border: 1px solid #555;
+    background-color: #006600; /* Sötétzöld gomb háttér */
+    color: #00FF00; /* Világos zöld szöveg */
+    border: 1px solid #00FF00;
     padding: 8px 15px;
-    cursor: pointer; /* Egérkurzor változik, jelezve, hogy kattintható */
+    cursor: pointer;
     font-size: 1em;
-    transition: background-color 0.2s, border-color 0.2s; /* Színátmenet hoverre */
+    transition: background-color 0.2s, color 0.2s;
+    white-space: nowrap; /* Megakadályozza a szöveg tördelését */
 }
 
 button:hover {
-    background-color: #555;
-    border-color: #777;
-}
-
-button:active {
-    background-color: #777;
-    border-color: #999;
+    background-color: #00AA00; /* Világosabb zöld hover */
+    color: black; /* Fekete szöveg hoveren */
 }
 
 button:disabled {
-    background-color: #1a1a1a;
-    color: #666;
-    border-color: #222;
+    background-color: #333;
+    color: #777;
+    border-color: #777;
     cursor: not-allowed;
 }
 
-
-/* Alsó gombok */
+/* Bottom Buttons */
 .bottom-buttons {
     display: flex;
-    justify-content: space-around;
-    padding-top: 10px;
-}
-
-/* Halál gomb (elől kell lennie) */
-#deathButton {
-    background-color: darkred;
-    color: white;
-    font-weight: bold;
-    font-size: 2em;
-    padding: 20px;
-    position: absolute; /* Abszolút pozícionálás, hogy ráfedjen az egészre */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80%;
-    height: 80%;
-    display: flex;
     justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Legfelülre helyezi */
-    border: 3px solid #ff0000;
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+    padding-top: 10px;
+    border-top: 1px solid #00FF00;
+    margin-top: 10px;
 }
 
-/* Shop Modal Styles */
+/* Floating Text for Damage/Heal */
+.floating-text {
+    position: absolute;
+    font-weight: bold;
+    animation: floatAndFade 1.5s forwards;
+    pointer-events: none; /* Ne akadályozza az egér eseményeket */
+    z-index: 100;
+}
+
+@keyframes floatAndFade {
+    0% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50px);
+        opacity: 0;
+    }
+}
+
+/* Modals (Shop) */
 .modal {
-    display: none; /* Alapértelmezetten rejtett */
-    position: fixed; /* Helyben marad */
-    z-index: 1; /* A többi tartalom felett */
+    display: none; /* Rejtett alapértelmezetten */
+    position: fixed; /* Fix pozíció */
+    z-index: 1000; /* Legfelül legyen */
     left: 0;
     top: 0;
-    width: 100%; /* Teljes szélesség */
-    height: 100%; /* Teljes magasság */
-    overflow: auto; /* Görgő sáv, ha szükséges */
-    background-color: rgba(0,0,0,0.8); /* Félátlátszó fekete háttér */
-    justify-content: center; /* Tartalom középre igazítása (flexbox miatt) */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Félátlátszó fekete háttér */
+    display: flex;
+    justify-content: center;
     align-items: center;
 }
 
 .modal-content {
-    background-color: #222;
-    margin: auto;
+    background-color: #003300;
     padding: 20px;
-    border: 1px solid #888;
+    border: 2px solid #00FF00;
+    border-radius: 5px;
     width: 80%;
-    max-width: 600px; /* Maximális szélesség */
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    max-width: 600px;
+    text-align: center;
     position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    max-height: 90vh; /* Max magasság */
+    overflow-y: auto; /* Görgetés, ha túlcsordul a tartalom */
 }
 
-.close-button {
-    color: #aaa;
+.modal-content h2 {
+    color: #00FF00;
+    margin-bottom: 20px;
+}
+
+.modal-content .close-button {
+    color: #00FF00;
     position: absolute;
     top: 10px;
-    right: 10px;
+    right: 20px;
     font-size: 28px;
     font-weight: bold;
-    cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: #fff;
-    text-decoration: none;
     cursor: pointer;
 }
 
 .shop-items-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
 .shop-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #444;
     padding: 10px;
-    background-color: #333;
-    position: relative; /* A zár overlay pozícionálásához */
+    border: 1px solid #006600;
+    background-color: #002200;
+    position: relative;
+}
+
+.shop-item span {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.shop-item button {
+    margin-left: 10px;
 }
 
 .item-lock {
@@ -335,54 +323,58 @@ button:disabled {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(141, 70, 51, 0.9); /* A VBA-ból a "zár" szín, félátlátszó */
+    background-color: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
-    color: #fff;
-    font-size: 1.2em;
-    border: 1px solid #000;
-    pointer-events: none; /* Ne blokkolja a kattintást a buy gombra, ha el van rejtve */
+    font-size: 1.5em;
+    color: red;
 }
 
-/* Lebegő szöveges dobozok (sebzés, gyógyítás) */
-.display-text-box {
-    position: absolute;
-    width: 150px;
-    height: 40px;
+/* Go Mob Section (New for left panel) */
+.go-mob-section {
+    margin-bottom: 15px;
+}
+
+/* Boss Counter (New for left panel) */
+.boss-counter {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
     text-align: center;
-    font-weight: bold;
+}
+
+/* Level Navigation (New for left panel) */
+.level-navigation {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0,0,0,0.5); /* Félátlátszó háttér */
-    border: 1px solid #888;
-    z-index: 5;
-    pointer-events: none; /* Ne blokkolja a kattintásokat alatta */
-    animation: fadeOut 3s forwards; /* Animáció hozzáadása */
+    flex-direction: column;
+    gap: 10px;
+    margin-top: auto; /* Alulra igazítja a gombokat a bal panelben */
+    padding-top: 10px;
+    border-top: 1px solid #00FF00;
 }
 
-@keyframes fadeOut {
-    0% { opacity: 1; transform: translateY(0); } /* Kezdő állapot */
-    100% { opacity: 0; transform: translateY(-30px); } /* Felfelé lebeg és eltűnik */
+/* Death Button (initially hidden) */
+#deathButton {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3em;
+    padding: 20px 40px;
+    background-color: darkred;
+    color: white;
+    border: 3px solid red;
+    z-index: 1000;
 }
 
-/* Third Eye varázslat stílusa (a kocka eredmény cellákra) */
-.third-eye-active {
-    border: 1px solid #000 !important; /* Fekete keret */
-    background-color: #eee !important; /* Világos háttér */
-    color: #000 !important; /* Fekete szöveg, hogy látszódjon */
-}
-
-/* Gyógyító gombok konténer */
+/* Healing Buttons Container (in-fight options) */
 #healingButtonsContainer {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    margin-top: 10px;
-}
-
-#healingButtonsContainer button {
-    width: 100%; /* Kitölti a rendelkezésre álló helyet */
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%; /* Szélesség a panelen belül */
+    align-items: center;
 }
