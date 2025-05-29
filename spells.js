@@ -1,6 +1,7 @@
 // spells.js
 
-import { player, updateUI, appendToLog, toggleGameButtons } from './ui-manager.js';
+import { player } from './game-state.js'; // <-- EZ AZ ÚJ SOR
+import { updateUI, appendToLog, toggleGameButtons } from './ui-manager.js';
 
 let thirdEyeTimeout = null;
 let boostSpellTimeout = null;
