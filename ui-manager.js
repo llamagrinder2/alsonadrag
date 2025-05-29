@@ -1,139 +1,109 @@
 // ui-manager.js
-import { player, mob, shopItems } from './game-state.js';
 
-// HTML elemek referenciái
+import { player, mob, gameModifiers } from './game-state.js';
+
+// UI elemek lekérése
 const playerHpBar = document.querySelector('.player-hp-bar');
-const playerHpText = document.querySelector('.player-hp-text');
 const mobHpBar = document.querySelector('.mob-hp-bar');
-const mobHpText = document.querySelector('.mob-hp-text');
-const playerRollResultSpan = document.getElementById('playerRollResult');
-const mobRollResultSpan = document.getElementById('mobRollResult');
-const playerDamageDisplay = document.getElementById('playerDamageDisplay');
-const mobDamageDisplay = document.getElementById('mobDamageDisplay');
+const playerCurrentHpText = document.getElementById('playerCurrentHp');
+const playerMaxHpText = document.getElementById('playerMaxHp');
+const mobCurrentHpText = document.getElementById('mobCurrentHp');
+const mobMaxHpText = document.getElementById('mobMaxHp');
 const gameLog = document.getElementById('gameLog');
+const playerLevelText = document.getElementById('playerLevel'); // Ha van ilyen a UI-ban
+const playerExpText = document.getElementById('playerExp'); // Ha van ilyen a UI-ban
+const playerNextLevelExpText = document.getElementById('playerNextLevelExp'); // Ha van ilyen a UI-ban
+const bankAmountText = document.getElementById('bankAmount');
+const potion1CountText = document.getElementById('potion1Count');
+const potion2CountText = document.getElementById('potion2Count');
+const potion3CountText = document.getElementById('potion3Count');
+
+// Harci gombok (kikapcsolhatóak támadás közben)
 const rollButton = document.getElementById('rollButton');
-const bossCounterText = document.getElementById('bossCounterText');
-const bankAmountSpan = document.getElementById('bankAmount');
-const potionCounts = {
-    '1': document.getElementById('potion1Count'),
-    '2': document.getElementById('potion2Count'),
-    '3': document.getElementById('potion3Count')
-};
-const healingButtonsContainer = document.getElementById('healingButtonsContainer');
-const deathButton = document.getElementById('deathButton');
-const shopModal = document.getElementById('shopModal');
+const goMobButton = document.getElementById('goMobButton');
+const descendLevelButton = document.getElementById('descendLevelButton');
+const ascendLevelButton = document.getElementById('ascendLevelButton');
+const thirdEyeButton = document.getElementById('thirdEyeButton');
+const boostSpellButton = document.getElementById('boostSpellButton');
 
 
+// UI frissítése
 export function updateUI() {
+    // HP sávok és szöveg
     playerHpBar.style.width = `${(player.currentHp / player.maxHp) * 100}%`;
-    playerHpText.textContent = `Player HP: ${Math.max(0, Math.ceil(player.currentHp))}/${player.maxHp}`;
     mobHpBar.style.width = `${(mob.currentHp / mob.maxHp) * 100}%`;
-    mobHpText.textContent = `Mob HP: ${Math.max(0, Math.ceil(mob.currentHp))}/${mob.maxHp}`;
 
-    bossCounterText.textContent = `${mob.bossReq - mob.bossCount} mobs left until the Boss.`;
-    if (mob.bossFight === 1) {
-        bossCounterText.textContent = "BOSS FIGHT!";
-    } else if (mob.bossCount >= mob.bossReq) {
-        bossCounterText.textContent = "Boss ready!";
-    }
+    playerCurrentHpText.textContent = player.currentHp;
+    playerMaxHpText.textContent = player.maxHp;
+    mobCurrentHpText.textContent = mob.currentHp;
+    mobMaxHpText.textContent = mob.maxHp;
 
-    bankAmountSpan.textContent = player.bank;
-    potionCounts['1'].textContent = player.potions['1'];
-    potionCounts['2'].textContent = player.potions['2'];
-    potionCounts['3'].textContent = player.potions['3'];
+    // Szint és XP kijelzés (ha vannak ilyen elemek az index.html-ben)
+    if (playerLevelText) playerLevelText.textContent = player.level;
+    // XP kijelzés formázottan, pl. (currentExp / expToNextLevel)
+    if (playerExpText) playerExpText.textContent = `${player.currentExp}/${player.expToNextLevel}`;
+    if (playerNextLevelExpText) playerNextLevelExpText.textContent = player.expToNextLevel; // Vagy csak a következő szinthez szükséges XP
 
-    if (player.currentHp < 1) {
-        deathButton.style.display = 'flex';
-        document.querySelectorAll('button:not(#deathButton)').forEach(btn => btn.disabled = true);
-    } else {
-        deathButton.style.display = 'none';
-        document.querySelectorAll('button').forEach(btn => btn.disabled = false);
-    }
+    // Bank
+    bankAmountText.textContent = player.bank;
 
-    const playerRollContainer = playerRollResultSpan.closest('.roll-display');
-    const mobRollContainer = mobRollResultSpan.closest('.roll-display');
-
-    if (player.activeSpell === "Third Eye") {
-        playerRollContainer.classList.add('third-eye-active');
-        mobRollContainer.classList.add('third-eye-active');
-    } else {
-        playerRollContainer.classList.remove('third-eye-active');
-        mobRollContainer.classList.remove('third-eye-active');
-    }
-
-    if (playerRollResultSpan.textContent !== '0' || mobRollResultSpan.textContent !== '0') {
-         rollButton.style.display = 'none';
-    } else {
-         rollButton.style.display = 'block';
-    }
-
-    // Bolt elemek frissítése (zár ki/be)
-    for (const itemKey in shopItems) {
-        const item = shopItems[itemKey];
-        const lockElement = document.getElementById(item.lockId);
-        if (lockElement) {
-            lockElement.style.display = item.bought ? 'none' : 'flex';
-        }
-    }
+    // Potik darabszáma
+    potion1CountText.textContent = player.potions[1];
+    potion2CountText.textContent = player.potions[2];
+    potion3CountText.textContent = player.potions[3];
 }
 
+// Naplóhoz hozzáadás
 export function appendToLog(message) {
-    gameLog.textContent += message + '\n';
-    gameLog.scrollTop = gameLog.scrollHeight;
+    const timestamp = new Date().toLocaleTimeString();
+    gameLog.textContent += `[${timestamp}] ${message}\n`;
+    gameLog.scrollTop = gameLog.scrollHeight; // Görgetés az aljára
 }
 
-export function showFloatingText(element, text, color) {
-    const textBox = document.createElement('div');
-    textBox.classList.add('display-text-box');
-    textBox.textContent = text;
-    textBox.style.color = color;
-    textBox.style.left = `${element.offsetLeft + element.offsetWidth / 2 - 75}px`;
-    textBox.style.top = `${element.offsetTop + element.offsetHeight / 2 - 20}px`;
-    textBox.style.zIndex = 10;
-    document.querySelector('.game-container').appendChild(textBox);
+// Lebegő szöveg (sebzés/gyógyítás kijelzésére)
+export function showFloatingText(targetElement, text, color) {
+    const floatingText = document.createElement('div');
+    floatingText.classList.add('floating-text');
+    floatingText.textContent = text;
+    floatingText.style.color = color;
 
-    textBox.addEventListener('animationend', () => {
-        textBox.remove();
+    // Pozíció beállítása a cél elemhez képest
+    const rect = targetElement.getBoundingClientRect();
+    floatingText.style.left = `${rect.left + rect.width / 2}px`;
+    floatingText.style.top = `${rect.top + rect.height / 2}px`;
+
+    document.body.appendChild(floatingText);
+
+    // Eltávolítás az animáció után
+    floatingText.addEventListener('animationend', () => {
+        floatingText.remove();
     });
 }
 
+// Harci kijelzők (roll eredmények, sebzések) resetelése
 export function resetFightDisplay() {
-    playerDamageDisplay.textContent = '';
-    mobDamageDisplay.textContent = '';
-    playerRollResultSpan.textContent = '0';
-    mobRollResultSpan.textContent = '0';
-    rollButton.style.display = 'block';
-    healingButtonsContainer.innerHTML = '';
-
-    const existingTextBoxes = document.querySelectorAll('.display-text-box');
-    existingTextBoxes.forEach(box => box.remove());
+    document.getElementById('playerRollResult').textContent = '0';
+    document.getElementById('mobRollResult').textContent = '0';
+    document.getElementById('playerDamageDisplay').textContent = '';
+    document.getElementById('mobDamageDisplay').textContent = '';
 }
 
-export function setModalVisibility(visible) {
-    shopModal.style.display = visible ? 'flex' : 'none';
-    document.querySelectorAll('.game-container button').forEach(btn => btn.disabled = visible);
-    if (visible) {
-        shopModal.querySelector('.close-button').disabled = false;
-        shopModal.querySelector('#exitShopButton').disabled = false;
-        shopModal.querySelector('#shopResetButton').disabled = false;
-        document.querySelectorAll('.shop-item button').forEach(btn => btn.disabled = false);
-    }
-}
-
+// Gombok engedélyezése/letiltása
 export function toggleGameButtons(enable) {
-    const buttonsToToggle = [
-        document.getElementById('rollButton'),
-        document.getElementById('goMobButton'),
-        document.getElementById('descendLevelButton'),
-        document.getElementById('ascendLevelButton'),
-        document.getElementById('thirdEyeButton'),
-        document.getElementById('boostSpellButton'),
-        document.getElementById('enterShopButton')
-    ];
-    document.querySelectorAll('.buy-potion-btn').forEach(btn => btn.style.display = enable ? 'block' : 'none');
-
-    buttonsToToggle.forEach(btn => {
-        if (btn) btn.style.display = enable ? 'block' : 'none';
+    rollButton.disabled = !enable;
+    goMobButton.disabled = !enable;
+    descendLevelButton.disabled = !enable;
+    ascendLevelButton.disabled = !enable;
+    thirdEyeButton.disabled = !enable;
+    boostSpellButton.disabled = !enable;
+    
+    // Potivásárló gombok kezelése (ha a healing.js hozza létre őket, akkor azt is be kell ide importálni)
+    // Ideiglenesen kikapcsoljuk, ha aktívak:
+    const buyPotionButtons = document.querySelectorAll('.buy-potion-btn');
+    buyPotionButtons.forEach(button => {
+        button.disabled = !enable;
     });
-    healingButtonsContainer.innerHTML = ''; // Törli a gyógyító gombokat is
+
+    // Shop gomb
+    document.getElementById('enterShopButton').disabled = !enable;
 }
