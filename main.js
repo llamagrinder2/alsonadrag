@@ -1,24 +1,19 @@
 // main.js
-import { resetPlayerState, resetMobState, resetGameModifiers, resetShopItems } from './game-state.js';
-import { updateUI, appendToLog, resetFightDisplay, toggleGameButtons } from './ui-manager.js';
-import { setupEventListeners } from './event-handlers.js';
 
-// Teljes játék reset (ez volt a Playtest.Reset)
-export function resetGame() {
-    resetPlayerState();
-    resetMobState();
-    resetGameModifiers();
-    resetShopItems();
-
-    appendToLog("Game reset. Welcome back, adventurer!");
-
-    toggleGameButtons(true); // Engedélyezi a játék gombokat
-    resetFightDisplay(); // Törli a sebzéskijelzőket, visszaállítja a roll gombot
-    updateUI(); // Frissíti a UI-t az alapállapotra
-}
+import { player, mob } from './game-state.js';
+import { updateUI, appendToLog, showFloatingText } from './ui-manager.js';
+import { initializeEventListeners } from './event-handlers.js';
+import { nextMob, updatePlayerStats } from './game-logic.js'; // nextMob és updatePlayerStats importálása
 
 // Játék inicializálása
-document.addEventListener('DOMContentLoaded', () => {
-    setupEventListeners(); // Eseménykezelők beállítása
-    resetGame(); // Játék elindítása az alapállapotból
-});
+function initGame() {
+    appendToLog("Game starting...");
+    updatePlayerStats(); // Játékos statisztikák beállítása az aktuális szint alapján (pl. max HP, baseAttack)
+    nextMob(); // Első mob generálása
+    initializeEventListeners(); // Eseménykezelők inicializálása
+    updateUI(); // Kezdő UI frissítés
+    appendToLog("Game ready! Click 'Go Mob' to start a battle!");
+}
+
+// Játék indítása
+window.onload = initGame;
