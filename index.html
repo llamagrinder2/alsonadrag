@@ -13,7 +13,14 @@
             <div class="info-cell"></div>
             <div class="info-cell"></div>
             <div class="info-cell"></div>
-            </div>
+            <div class="info-cell"></div>
+            <div class="info-cell"></div>
+            <div class="info-cell"></div>
+            <div class="info-cell"></div>
+            <div class="info-cell"></div>
+            <div class="info-cell"></div>
+            <div class="info-cell"></div>
+        </div>
 
         <div class="main-area">
             <div class="left-panel">
@@ -28,7 +35,7 @@
                 <div class="level-navigation">
                     <button id="descendLevelButton">Descend Level</button>
                     <button id="ascendLevelButton">Ascend Level</button>
-                    </div>
+                </div>
 
                 <div id="healingButtonsContainer"></div>
             </div>
@@ -37,11 +44,11 @@
                 <div class="hp-bars">
                     <div class="hp-bar-container">
                         <div class="hp-bar player-hp-bar"></div>
-                        <span class="hp-text player-hp-text">Player HP: 100/100</span>
+                        <span class="hp-text player-hp-text">Player HP: <span id="playerCurrentHp"></span>/<span id="playerMaxHp"></span></span>
                     </div>
                     <div class="hp-bar-container">
                         <div class="hp-bar mob-hp-bar"></div>
-                        <span class="hp-text mob-hp-text">Mob HP: 50/50</span>
+                        <span class="hp-text mob-hp-text">Mob HP: <span id="mobCurrentHp"></span>/<span id="mobMaxHp"></span></span>
                     </div>
                 </div>
 
@@ -61,17 +68,17 @@
                     <div class="potions-section">
                         <div class="potion-slot">
                             <span class="potion-icon red"></span>
-                            <span id="potion1Count">1</span>
+                            <span id="potion1Count">0</span>
                             <button class="buy-potion-btn" data-potion-level="1">Buy LV1 (20)</button>
                         </div>
                         <div class="potion-slot">
                             <span class="potion-icon blue"></span>
-                            <span id="potion2Count">1</span>
+                            <span id="potion2Count">0</span>
                             <button class="buy-potion-btn" data-potion-level="2">Buy LV2 (40)</button>
                         </div>
                         <div class="potion-slot">
                             <span class="potion-icon purple"></span>
-                            <span id="potion3Count">1</span>
+                            <span id="potion3Count">0</span>
                             <button class="buy-potion-btn" data-potion-level="3">Buy LV3 (80)</button>
                         </div>
                     </div>
@@ -96,9 +103,9 @@
 
         <div class="bottom-buttons">
             <button id="enterShopButton">Enter Shop</button>
-            </div>
+        </div>
 
-        <button id="deathButton">YOU DIED!</button>
+        <button id="deathButton" style="display: none;">YOU DIED!</button>
     </div>
 
     <div id="shopModal" class="modal">
