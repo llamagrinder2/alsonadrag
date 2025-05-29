@@ -1,123 +1,88 @@
 // healing.js
-import { player, mob, gameModifiers } from './game-state.js';
-import { updateUI, appendToLog, showFloatingText, resetFightDisplay } from './ui-manager.js';
-import { checkPlayerLVUp, death } from './game-logic.js'; // checkPlayerLVUp és death jön a game-logic.js-ből
-import { bossCountUpdate } from './boss-logic.js'; // <-- bossCountUpdate a boss-logic.js-ből!
 
+import { player, mob, gameModifiers } from './game-state.js';
+import { updateUI, appendToLog, showFloatingText } from './ui-manager.js';
+import { checkPlayerLVUp, death } from './game-logic.js'; // calculateValue nem kell ide, mert fix árakat használunk
 
 const healingButtonsContainer = document.getElementById('healingButtonsContainer');
 
-// Új: Potion árak definiálása (vagy áthelyezhető game-state.js-be, ha sok hasonló van)
-const potionPrices = {
-    1: 20,
-    2: 40,
-    3: 80
-};
+// Létrehozza a gyógyító (Use Potion) gombokat a harc során
+export function createHealingButtons() {
+    healingButtonsContainer.innerHTML = ''; // Törli a meglévő gombokat
 
-export function usePotion(potionLevel) {
-    let healingMultiplier = 0;
-
-    switch (potionLevel) {
-        case 1: healingMultiplier = 0.0223; break;
-        case 2: healingMultiplier = 0.0242; break;
-        case 3: healingMultiplier = 0.0311; break;
-        default: console.error("Invalid potion level"); return;
-    }
-
-    if (player.potions[potionLevel] === 0) {
-        alert("No potions available!");
+    if (player.currentHp >= player.maxHp) {
+        appendToLog("Your HP is already full!");
         return;
     }
 
-    player.potions[potionLevel]--;
-    const playerHealAmount = (player.healStat + 4) * (player.maxHp * healingMultiplier);
-
-    // Mob akció (ismétlés, mert a gyógyítás külön kör)
-    const actionRoll = Math.floor(Math.random() * 100) + 1;
-    let mobAction = "";
-    if (mob.currentHp <= mob.maxHp * 0.35) {
-        if (actionRoll < 17) {
-            mobAction = "HEAL";
-        } else if (actionRoll <= 45) {
-            mobAction = "DEF";
-        } else {
-            mobAction = "ATK";
+    const potionLevels = [1, 2, 3];
+    potionLevels.forEach(level => {
+        if (player.potions[level] > 0) {
+            const button = document.createElement('button');
+            button.textContent = `Use Potion LV${level} (${player.potions[level]})`;
+            button.onclick = () => usePotion(level);
+            healingButtonsContainer.appendChild(button);
         }
-    } else {
-        if (actionRoll > 30) {
-            mobAction = "ATK";
-        } else {
-            mobAction = "DEF";
-        }
-    }
+    });
 
-    const mobRollResult = parseFloat(document.getElementById('mobRollResult').textContent);
-    const mobAttackDamageBase = (mobRollResult + gameModifiers.mod1) * gameModifiers.mod2;
-    const mobHealAmountBase = (mobRollResult + gameModifiers.mod1) * gameModifiers.mod3;
-    let actualMobDamage = calculateDamage(mobAttackDamageBase, player.armor);
-
-    let mobHealed = 0;
-    let playerDamageTaken = 0;
-
-    // Player gyógyítása
-    player.currentHp += playerHealAmount;
-    player.currentHp = Math.min(player.currentHp, player.maxHp);
-    showFloatingText(document.querySelector('.player-hp-bar'), `+${Math.ceil(playerHealAmount)} HP`, 'rgb(84, 134, 53)');
-    appendToLog(`You used Potion LV${potionLevel} and healed ${Math.ceil(playerHealAmount)} HP.`);
-
-    // Mob akciója
-    switch (mobAction) {
-        case "ATK":
-            player.currentHp -= actualMobDamage;
-            playerDamageTaken = actualMobDamage;
-            showFloatingText(document.querySelector('.player-hp-bar'), `-${Math.ceil(actualMobDamage)} HP`, 'orange');
-            appendToLog(`Mob dealt ${Math.ceil(playerDamageTaken)} damage.`);
-            break;
-        case "DEF":
-            mob.currentHp += (mob.maxHp * 0.01);
-            mobHealed = mob.maxHp * 0.01;
-            mob.currentHp = Math.min(mob.currentHp, mob.maxHp);
-            showFloatingText(document.querySelector('.mob-hp-bar'), `+${Math.ceil(mobHealed)} HP`, 'green');
-            appendToLog(`Mob chose to DEFEND and healed ${Math.ceil(mobHealed)} HP.`);
-            break;
-        case "HEAL":
-            mob.currentHp += mobHealAmountBase;
-            mobHealed = mobHealAmountBase;
-            mob.currentHp = Math.min(mob.currentHp, mob.maxHp);
-            showFloatingText(document.querySelector('.mob-hp-bar'), `+${Math.ceil(mobHealed)} HP`, 'green');
-            appendToLog(`Mob chose to HEAL and restored ${Math.ceil(mobHealed)} HP.`);
-            break;
-    }
-
-    // Check Death (player first)
-    if (player.currentHp < 1) {
-        player.currentHp = 0;
-        death();
-        updateUI();
-        return;
-    }
-
-    // Check Mob Death
-    if (mob.currentHp < 1) {
-        mob.currentHp = 0;
-        appendToLog(`You defeated the mob! You gained ${mob.xpReward} XP and ${mob.coinReward} Gold.`);
-        player.currentExp += mob.xpReward;
-        player.bank += mob.coinReward;
-        bossCountUpdate();
-        checkPlayerLVUp();
-    }
-
-    resetFightDisplay();
-    updateUI();
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = "Cancel Healing";
+    cancelButton.onclick = cancelHealing;
+    healingButtonsContainer.appendChild(cancelButton);
 }
 
-// ÚJ FUNKCIÓ: buyPotion (poti vásárlás)
-export function buyPotion(potionLevel) {
-    const price = potionPrices[potionLevel];
+// Poti használata
+export function usePotion(potionLevel) {
+    if (player.potions[potionLevel] > 0) {
+        let healAmount = 0;
+        switch (potionLevel) {
+            case 1:
+                healAmount = 20; // Alapértelmezett gyógyítás LV1
+                break;
+            case 2:
+                healAmount = 40; // Alapértelmezett gyógyítás LV2
+                break;
+            case 3:
+                healAmount = 80; // Alapértelmezett gyógyítás LV3
+                break;
+        }
 
-    if (!price) {
-        appendToLog("Invalid potion level for purchase.");
-        return;
+        player.currentHp += healAmount;
+        if (player.currentHp > player.maxHp) {
+            player.currentHp = player.maxHp; // Nem lépheti túl a max HP-t
+        }
+        player.potions[potionLevel]--;
+
+        showFloatingText(document.getElementById('playerCurrentHp').parentElement, `+${healAmount}`, 'green');
+        appendToLog(`You used Potion LV${potionLevel} and healed for ${healAmount} HP.`);
+        updateUI();
+        createHealingButtons(); // Frissíti a gombokat a megmaradt potik számával
+    } else {
+        appendToLog(`You don't have any Potion LV${potionLevel}!`);
+    }
+}
+
+// Gyógyítás megszakítása / gombok elrejtése
+export function cancelHealing() {
+    healingButtonsContainer.innerHTML = '';
+}
+
+// Poti vásárlása
+export function buyPotion(potionLevel) {
+    let price = 0;
+    switch (potionLevel) {
+        case 1:
+            price = gameModifiers.POTION_LV1_PRICE;
+            break;
+        case 2:
+            price = gameModifiers.POTION_LV2_PRICE;
+            break;
+        case 3:
+            price = gameModifiers.POTION_LV3_PRICE;
+            break;
+        default:
+            appendToLog("Invalid potion level for purchase.");
+            return;
     }
 
     if (player.bank < price) {
@@ -129,35 +94,6 @@ export function buyPotion(potionLevel) {
     player.potions[potionLevel]++;
     appendToLog(`Bought Potion LV${potionLevel} for ${price} Gold.`);
     updateUI(); // Frissíti a UI-t (pénz, poti darabszám)
-}
-
-
-export function createHealingButtons() {
-    healingButtonsContainer.innerHTML = '';
-
-    const potionLevels = [1, 2, 3];
-    potionLevels.forEach(level => {
-        const btn = document.createElement('button');
-        btn.textContent = `LV${level} Potion (${player.potions[level]})`;
-        btn.id = `healing${level}Btn`;
-        btn.onclick = () => usePotion(level);
-        btn.disabled = player.potions[level] === 0; // Letiltja, ha nincs poti
-        healingButtonsContainer.appendChild(btn);
-    });
-
-    const cancelButton = document.createElement('button');
-    cancelButton.textContent = 'Cancel';
-    cancelButton.id = 'cancelHealingBtn';
-    cancelButton.onclick = cancelHealing;
-    healingButtonsContainer.appendChild(cancelButton);
-}
-
-export function cancelHealing() {
-    healingButtonsContainer.innerHTML = '';
-    resetFightDisplay();
-    updateUI();
-}
-
-function calculateDamage(baseDamage, armor = 0) { // Duplikált, de a modulon belül maradhat
-    return Math.max(0, baseDamage - baseDamage * armor);
+    // Nem hívjuk a createHealingButtons-t, mert ez a shopon keresztül történik, nem harc közben
+    // A potik száma automatikusan frissül az updateUI() hívásával.
 }
