@@ -1,238 +1,363 @@
 // ui-manager.js
 
-// UI elemek referenciái
-const playerLevelElem = document.getElementById('player-level');
-const playerCurrentHpElem = document.getElementById('player-current-hp');
-const playerMaxHpElem = document.getElementById('player-max-hp');
-const playerCurrentExpElem = document.getElementById('player-current-exp');
-const playerExpToNextLevelElem = document.getElementById('player-exp-to-next-level');
-const playerBankElem = document.getElementById('player-bank');
-const playerBaseAttackElem = document.getElementById('player-base-attack');
-const playerArmorElem = document.getElementById('player-armor');
-const playerFloorLevelElem = document.getElementById('player-floor-level');
-const potion1CountElem = document.getElementById('potion-1-count');
-const potion2CountElem = document.getElementById('potion-2-count');
-const potion3CountElem = document.getElementById('potion-3-count');
+import { player, mob, shopItems, gameModifiers } from './game-state.js';
+import { calculatePlayerStats } from './game-logic.js'; // player statok újraszámolásához
 
-const mobNameElem = document.getElementById('mob-name');
-const mobLevelElem = document.getElementById('mob-level');
-const mobCurrentHpElem = document.getElementById('mob-current-hp');
-const mobMaxHpElem = document.getElementById('mob-max-hp');
-const mobBaseAttackElem = document.getElementById('mob-base-attack');
-const mobXpRewardElem = document.getElementById('mob-xp-reward');
-const mobCoinRewardElem = document.getElementById('mob-coin-reward');
-const mobPredictedActionElem = document.getElementById('mob-predicted-action');
+// UI elemek beszerzése
+const playerLevelElement = document.getElementById('player-level');
+const playerCurrentHpElement = document.getElementById('player-current-hp');
+const playerMaxHpElement = document.getElementById('player-max-hp');
+const playerCurrentExpElement = document.getElementById('player-current-exp');
+const playerExpToNextLevelElement = document.getElementById('player-exp-to-next-level');
+const playerBankElement = document.getElementById('player-bank');
+const playerBaseAttackElement = document.getElementById('player-base-attack');
+const playerArmorElement = document.getElementById('player-armor');
+const playerFloorLevelElement = document.getElementById('player-floor-level');
+const potion1CountElement = document.getElementById('potion-1-count');
+const potion2CountElement = document.getElementById('potion-2-count');
+const potion3CountElement = document.getElementById('potion-3-count');
 
-const logOutput = document.getElementById('log-output');
+const mobNameElement = document.getElementById('mob-name');
+const mobLevelElement = document.getElementById('mob-level');
+const mobCurrentHpElement = document.getElementById('mob-current-hp');
+const mobMaxHpElement = document.getElementById('mob-max-hp');
+const mobBaseAttackElement = document.getElementById('mob-base-attack');
+const mobPredictedActionElement = document.getElementById('mob-predicted-action');
+const mobXpRewardElement = document.getElementById('mob-xp-reward');
+const mobCoinRewardElement = document.getElementById('mob-coin-reward');
 
-const goMobButton = document.getElementById('go-mob-button');
-const levelUpButton = document.getElementById('level-up-button');
-const ascendButton = document.getElementById('ascend-button');
-const descendButton = document.getElementById('descend-button');
-const shopButton = document.getElementById('shop-button');
-const thirdEyeButton = document.getElementById('third-eye-button');
-const boostSpellButton = document.getElementById('boost-spell-button');
-const thirdEyeCostElem = document.getElementById('third-eye-cost');
-const boostSpellCostElem = document.getElementById('boost-spell-cost');
+const logOutputElement = document.getElementById('log-output');
 
-// Kockadobás kijelzők
-const playerDiceResultsElem = document.getElementById('player-dice-results');
-const mobDiceResultsElem = document.getElementById('mob-dice-results');
+const playerDiceResultsElement = document.getElementById('player-dice-results');
+const mobDiceResultsElement = document.getElementById('mob-dice-results');
 
-// Fő gomb konténerek (a láthatóság vezérléséhez)
 const gameButtonsContainer = document.getElementById('game-buttons-container');
-const combatButtonsContainer = document.getElementById('combat-buttons-container'); // Ez a "szülő" konténer a Roll/PlayerActions/HealingUI-nak
+const combatButtonsContainer = document.getElementById('combat-buttons-container');
+const rollButtonContainer = document.getElementById('roll-button-container');
+const playerActionButtonsContainer = document.getElementById('player-action-buttons-container');
+const healingUIContainer = document.getElementById('healing-ui-container');
 
-// Specifikus gomb konténerek
-const rollButtonContainer = document.getElementById('roll-button-container'); // A "Roll" gomb konténere
-const playerActionButtonsContainer = document.getElementById('player-action-buttons-container'); // Attack, Defend, Heal konténer
-const healingUiContainer = document.getElementById('healing-ui-container'); // Potionok és Cancel konténer
-
-// Shop UI elemek
 const shopModal = document.getElementById('shop-modal');
 const shopItemsContainer = document.getElementById('shop-items-container');
-const exitShopButton = document.getElementById('exit-shop-button');
-const shopPotion1PriceElem = document.getElementById('shop-potion-1-price');
-const shopPotion2PriceElem = document.getElementById('shop-potion-2-price');
-const shopPotion3PriceElem = document.getElementById('shop-potion-3-price');
-
-// Death Screen
 const deathScreen = document.getElementById('death-screen');
-const restartGameButton = document.getElementById('restart-game-button');
 
+const shopPotion1PriceElement = document.getElementById('shop-potion-1-price');
+const shopPotion2PriceElement = document.getElementById('shop-potion-2-price');
+const shopPotion3PriceElement = document.getElementById('shop-potion-3-price');
 
-// UI frissítése
-export function updateUI(player, mob) {
-    playerLevelElem.textContent = player.level;
-    playerCurrentHpElem.textContent = Math.ceil(player.currentHp);
-    playerMaxHpElem.textContent = Math.ceil(player.maxHp);
-    playerCurrentExpElem.textContent = Math.ceil(player.currentExp);
-    playerExpToNextLevelElem.textContent = Math.ceil(player.expToNextLevel);
-    playerBankElem.textContent = player.bank;
-    playerBaseAttackElem.textContent = Math.ceil(player.baseAttack);
-    playerArmorElem.textContent = player.armor;
-    playerFloorLevelElem.textContent = player.floorLevel;
-    potion1CountElem.textContent = player.potions[1];
-    potion2CountElem.textContent = player.potions[2];
-    potion3CountElem.textContent = player.potions[3];
+const thirdEyeCostElement = document.getElementById('third-eye-cost');
+const boostSpellCostElement = document.getElementById('boost-spell-cost');
 
-    mobNameElem.textContent = mob.name;
-    mobLevelElem.textContent = mob.level;
-    mobCurrentHpElem.textContent = Math.ceil(mob.currentHp);
-    mobMaxHpElem.textContent = Math.ceil(mob.maxHp);
-    mobBaseAttackElem.textContent = Math.ceil(mob.baseAttack);
-    mobXpRewardElem.textContent = Math.ceil(mob.xpReward);
-    mobCoinRewardElem.textContent = Math.ceil(mob.coinReward);
-    mobPredictedActionElem.textContent = mob.predictedAction;
+// Fő UI frissítő függvény
+export function updateUI() {
+    // Játékos statok
+    playerLevelElement.textContent = player.level;
+    playerCurrentHpElement.textContent = player.currentHp;
+    playerMaxHpElement.textContent = player.maxHp;
+    playerCurrentExpElement.textContent = player.currentExp;
+    playerExpToNextLevelElement.textContent = player.expToNextLevel;
+    playerBankElement.textContent = player.bank;
 
-    // Spell gombok szövegének frissítése (költség)
-    thirdEyeCostElem.textContent = player.gameModifiers.THIRD_EYE_PRICE; // Feltehetően importálod a gameModifiers-t
-    boostSpellCostElem.textContent = player.gameModifiers.BOOST_SPELL_PRICE; // Ugyanez
+    // A calculatePlayerStats() hívása után a player.baseAttack és player.attack már friss.
+    // playerBaseAttackElement.textContent = player.baseAttack; // EZ NEM KELL, MERT AZ ATTACK FOG MONDANI A SPELL MIATT
+    playerBaseAttackElement.textContent = Math.floor(player.baseAttack * player.attackMultiplier); // Mutassuk a tényleges támadást, ami a spell-lel módosul
+
+    playerArmorElement.textContent = player.armor;
+    playerFloorLevelElement.textContent = player.floorLevel;
+
+    // Potik darabszáma
+    potion1CountElement.textContent = player.potions[1];
+    potion2CountElement.textContent = player.potions[2];
+    potion3CountElement.textContent = player.potions[3];
+
+    // HP és XP sávok
+    updateHpBars();
+    updateExpBar();
+
+    // Mob statok (csak ha van aktív mob)
+    if (mob.currentHp > 0) { // Csak akkor frissíti, ha a mob él
+        mobNameElement.textContent = mob.name;
+        mobLevelElement.textContent = mob.level;
+        mobCurrentHpElement.textContent = mob.currentHp;
+        mobMaxHpElement.textContent = mob.maxHp;
+        mobBaseAttackElement.textContent = mob.baseAttack;
+        mobXpRewardElement.textContent = mob.xpReward;
+        mobCoinRewardElement.textContent = mob.coinReward;
+        displayMobPredictedAction(mob.predictedAction); // Frissíti a mob predikciót
+    } else {
+        // Ha a mob meghalt, elrejtjük vagy töröljük az adatait
+        mobNameElement.textContent = '---';
+        mobLevelElement.textContent = '---';
+        mobCurrentHpElement.textContent = '---';
+        mobMaxHpElement.textContent = '---';
+        mobBaseAttackElement.textContent = '---';
+        mobPredictedActionElement.textContent = '---';
+        mobXpRewardElement.textContent = '---';
+        mobCoinRewardElement.textContent = '---';
+        displayMobPredictedAction('???'); // Alapértelmezett visszaállítás
+    }
+
+    // Gombok állapotának frissítése
+    updateButtonStates();
+    updateShopButtons(); // Frissíti a shop gombokat és a lockokat
+    updateSpellCosts(); // Frissíti a spell költségeket
+
+    // Játékos avatar frissítése (ha szükséges, pl. szintlépéskor)
+    // Ha van logikád az avatar cseréjére, az itt történhet
 }
 
-// Log üzenet hozzáadása
+// HP sávok frissítése
+function updateHpBars() {
+    const playerHpBar = document.getElementById('player-hp-bar');
+    const mobHpBar = document.getElementById('mob-hp-bar');
+
+    const playerHpPercent = (player.currentHp / player.maxHp) * 100;
+    playerHpBar.style.width = `${playerHpPercent}%`;
+
+    const mobHpPercent = (mob.currentHp / mob.maxHp) * 100;
+    mobHpBar.style.width = `${mobHpPercent}%`;
+}
+
+// XP sáv frissítése
+function updateExpBar() {
+    const playerXpBar = document.getElementById('player-xp-bar');
+    const playerExpPercent = (player.currentExp / player.expToNextLevel) * 100;
+    playerXpBar.style.width = `${playerExpPercent}%`;
+}
+
+// Eseménynapló frissítése
 export function appendToLog(message) {
     const p = document.createElement('p');
-    p.textContent = message;
-    logOutput.appendChild(p);
-    logOutput.scrollTop = logOutput.scrollHeight; // Görgetés az aljára
+    p.textContent = `> ${message}`;
+    logOutputElement.appendChild(p);
+    logOutputElement.scrollTop = logOutputElement.scrollHeight; // Görget az aljára
 }
 
-// Lebegő szöveg megjelenítése
-export function showFloatingText(element, text, isDamage) {
+// Lebegő szöveg megjelenítése (sebzés/gyógyítás)
+export function showFloatingText(targetElement, text, isDamage) {
     const floatingText = document.createElement('div');
     floatingText.textContent = text;
     floatingText.classList.add('floating-text');
     if (isDamage) {
-        floatingText.classList.add('damage-text');
+        floatingText.style.color = '#dc3545'; // Piros sebzéshez
     } else {
-        floatingText.classList.add('heal-text');
+        floatingText.style.color = '#28a745'; // Zöld gyógyításhoz
     }
 
-    const rect = element.getBoundingClientRect();
-    // A szöveg az elem fölött jelenik meg, az elem közepén
-    floatingText.style.left = `${rect.left + rect.width / 2}px`;
-    floatingText.style.top = `${rect.top}px`;
+    const targetRect = targetElement.getBoundingClientRect();
+    const gameContainerRect = document.querySelector('.game-container').getBoundingClientRect();
 
-    document.body.appendChild(floatingText);
+    // Pozicionálás a targetElement felett, de a game-containerhez viszonyítva
+    floatingText.style.left = `${targetRect.left - gameContainerRect.left + targetRect.width / 2}px`;
+    floatingText.style.top = `${targetRect.top - gameContainerRect.top - targetRect.height / 2}px`;
+    floatingText.style.transform = `translateX(-50%)`; // Középre igazítás
 
-    // Animáció és eltávolítás
-    floatingText.style.opacity = '1';
-    floatingText.style.transform = 'translate(-50%, -20px)'; // Felfelé mozog
+    document.querySelector('.game-container').appendChild(floatingText);
 
-    setTimeout(() => {
-        floatingText.style.opacity = '0';
-        floatingText.style.transform = 'translate(-50%, -50px)'; // Még feljebb mozog és eltűnik
-        floatingText.addEventListener('transitionend', () => {
-            floatingText.remove();
-        });
-    }, 1000); // 1 másodperc után kezdődik az eltűnés
-}
-
-// --- Gombok láthatóságának kezelése ---
-
-// Fő játékgombok (Go Mob, Level Up, Shop, Ascend/Descend, Spells)
-export function toggleGameButtons(show) {
-    gameButtonsContainer.style.display = show ? 'grid' : 'none'; // 'grid' vagy 'flex' ahogy épp van
-}
-
-// A Roll gomb láthatósága
-export function toggleRollButton(show) {
-    rollButtonContainer.style.display = show ? 'block' : 'none';
-}
-
-// Játékos akció gombjainak (Attack, Defend, Heal) láthatósága
-export function togglePlayerActionButtons(show) {
-    playerActionButtonsContainer.style.display = show ? 'grid' : 'none'; // 'grid' vagy 'flex'
-}
-
-// Gyógyítás UI (Potionok és Cancel) láthatósága
-export function toggleHealingUI(show) {
-    healingUiContainer.style.display = show ? 'grid' : 'none'; // 'grid' vagy 'flex'
-}
-
-// Összes harci gomb konténerének láthatósága (ez vezérli a Roll/PlayerActions/HealingUI szülőjét)
-export function hideAllCombatButtons(hide) {
-    // Ha hide igaz, elrejti a combatButtonsContainer-t, ami az összes harci gombot tartalmazza.
-    // Ezen felül expliciten elrejtjük a Roll, PlayerAction és HealingUI konténereket is.
-    if (hide) {
-        combatButtonsContainer.style.display = 'none';
-        toggleRollButton(false);
-        togglePlayerActionButtons(false);
-        toggleHealingUI(false);
-    } else {
-        combatButtonsContainer.style.display = 'block'; // Vagy 'flex'/'grid' ahogy neked van beállítva
-    }
-}
-
-
-// Mob kockadobás kijelzése
-export function displayMobDice(results) {
-    mobDiceResultsElem.innerHTML = ''; // Törli az előző dobásokat
-    results.forEach(roll => {
-        const span = document.createElement('span');
-        span.textContent = roll;
-        span.classList.add('dice-roll-number');
-        mobDiceResultsElem.appendChild(span);
+    floatingText.addEventListener('animationend', () => {
+        floatingText.remove();
     });
 }
 
-// Játékos kockadobás kijelzése
-export function displayPlayerDice(results) {
-    playerDiceResultsElem.innerHTML = ''; // Törli az előző dobásokat
-    results.forEach(roll => {
-        const span = document.createElement('span');
-        span.textContent = roll;
-        span.classList.add('dice-roll-number');
-        playerDiceResultsElem.appendChild(span);
-    });
-}
 
-// Mob predikált akciójának kijelzése
-export function displayMobPredictedAction(action) {
-    mobPredictedActionElem.textContent = action;
-}
-
-// Harci kijelzők (kockák, predikció) resetelése
-export function resetFightDisplay() {
-    playerDiceResultsElem.innerHTML = '';
-    mobDiceResultsElem.innerHTML = '';
-    mobPredictedActionElem.textContent = '???';
-}
-
-// Shop gombok frissítése
-export function updateShopButtons(playerGold, shopItems) {
-    shopItemsContainer.innerHTML = ''; // Törli az előző itemeket
-
-    for (const itemId in shopItems) {
-        const item = shopItems[itemId];
-        const button = document.createElement('button');
-        button.id = `buy-${itemId}-button`;
-        button.textContent = `${item.name} (${item.price}G)`;
-        if (item.unlocked) {
-            button.classList.add('purchased');
-            button.disabled = true;
-            button.textContent += ' (Megvásárolva)';
-        } else if (playerGold < item.price) {
-            button.disabled = true;
-        }
-        shopItemsContainer.appendChild(button);
-        // Event listener hozzáadása az app.js-ben történik
-    }
-}
-
-// Potion árak megjelenítése a Shopban
-export function renderPotionPrices(price1, price2, price3) {
-    document.getElementById('shop-potion-1-price').textContent = price1;
-    document.getElementById('shop-potion-2-price').textContent = price2;
-    document.getElementById('shop-potion-3-price').textContent = price3;
-}
-
-// Death Screen megjelenítése/elrejtése
+// Halál képernyő megjelenítése/elrejtése
 export function showDeathScreen() {
     deathScreen.style.display = 'flex';
 }
 
 export function hideDeathScreen() {
     deathScreen.style.display = 'none';
+}
+
+// Gombok láthatóságának kezelése
+export function toggleGameButtons(show) {
+    gameButtonsContainer.style.display = show ? 'flex' : 'none';
+}
+
+export function hideAllCombatButtons(hide) { // EZ A FÜGGVÉNY REJTI EL AZ EGÉSZ HARCI GOMB KONTÉNERT
+    combatButtonsContainer.style.display = hide ? 'none' : 'flex'; // Itt flex, hogy a belső elemeket kezelni lehessen
+}
+
+export function toggleRollButton(show) {
+    rollButtonContainer.style.display = show ? 'block' : 'none';
+}
+
+export function togglePlayerActionButtons(show) {
+    playerActionButtonsContainer.style.display = show ? 'flex' : 'none';
+}
+
+export function toggleHealingUI(show) {
+    healingUIContainer.style.display = show ? 'flex' : 'none';
+}
+
+// Mob akció előrejelzésének kijelzése
+export function displayMobPredictedAction(action) {
+    if (mobPredictedActionElement) {
+        mobPredictedActionElement.textContent = action.toUpperCase(); // Nagybetűs kijelzés
+
+        // Stílus hozzáadása az akció típusától függően
+        mobPredictedActionElement.classList.remove('attack', 'defend', 'heal'); // Régi classok eltávolítása
+        if (action !== '???') {
+            mobPredictedActionElement.classList.add(action);
+        }
+    }
+}
+
+
+// Shop modal láthatóságának kezelése
+export function setModalVisibility(visible) {
+    if (visible) {
+        shopModal.style.display = 'flex';
+    } else {
+        shopModal.style.display = 'none';
+    }
+}
+
+// Gombok (shop és spellek) állapotának frissítése (disabled, textContent)
+function updateButtonStates() {
+    const levelUpButton = document.getElementById('level-up-button');
+    const ascendButton = document.getElementById('ascend-button');
+    const descendButton = document.getElementById('descend-button');
+    const goMobButton = document.getElementById('go-mob-button');
+    const shopButton = document.getElementById('shop-button');
+    const attackButton = document.getElementById('attack-button');
+    const defendButton = document.getElementById('defend-button');
+    const healButton = document.getElementById('heal-button');
+
+    // Szintlépés gomb
+    if (levelUpButton) {
+        levelUpButton.disabled = player.currentExp < player.expToNextLevel;
+    }
+
+    // Ascend/Descend gombok
+    if (ascendButton) {
+        ascendButton.disabled = player.floorLevel >= gameModifiers.MAX_FLOOR || mob.currentHp > 0;
+    }
+    if (descendButton) {
+        descendButton.disabled = player.floorLevel <= 1 || mob.currentHp > 0;
+    }
+    // "Go Mob" gomb (ha él a mob, disabled)
+    if (goMobButton) {
+        goMobButton.disabled = mob.currentHp > 0;
+    }
+
+    // Harci akció gombok (alapértelmezetten disabled, csak a roll után engedélyezzük)
+    // Ezeket a togglePlayerActionButtons() és toggleRollButton() kezeli, nem itt kell.
+
+    // Poti vásárlás gombok a shopban
+    const buyPotion1Button = document.getElementById('buy-potion-1-button');
+    const buyPotion2Button = document.getElementById('buy-potion-2-button');
+    const buyPotion3Button = document.getElementById('buy-potion-3-button');
+
+    if (buyPotion1Button) {
+        buyPotion1Button.disabled = player.bank < gameModifiers.POTION_LV1_PRICE;
+    }
+    if (buyPotion2Button) {
+        buyPotion2Button.disabled = player.bank < gameModifiers.POTION_LV2_PRICE;
+    }
+    if (buyPotion3Button) {
+        buyPotion3Button.disabled = player.bank < gameModifiers.POTION_LV3_PRICE;
+    }
+
+    // Poti használat gombok harc közben (az healing.js createHealingButtons() függvénye hozza létre)
+    // Itt csak a darabszámot frissíthetjük, ha vannak fix gombok:
+    const usePotion1Button = document.getElementById('use-potion-1-button');
+    const usePotion2Button = document.getElementById('use-potion-2-button');
+    const usePotion3Button = document.getElementById('use-potion-3-button');
+
+    if (usePotion1Button) usePotion1Button.disabled = player.potions[1] <= 0;
+    if (usePotion2Button) usePotion2Button.disabled = player.potions[2] <= 0;
+    if (usePotion3Button) usePotion3Button.disabled = player.potions[3] <= 0;
+
+    // Third Eye és Boost Spell gombok
+    const thirdEyeButton = document.getElementById('third-eye-button');
+    const boostSpellButton = document.getElementById('boost-spell-button');
+
+    if (thirdEyeButton) {
+        thirdEyeButton.disabled = player.bank < gameModifiers.THIRD_EYE_PRICE || player.activeSpells.thirdEye;
+    }
+    if (boostSpellButton) {
+        boostSpellButton.disabled = player.bank < gameModifiers.BOOST_SPELL_PRICE || player.activeSpells.boostSpell;
+    }
+}
+
+// Shop gombok frissítése (lock, vásárolt állapot)
+export function updateShopButtons() {
+    shopItemsContainer.innerHTML = ''; // Törli a meglévő itemeket
+
+    for (const itemId in shopItems) {
+        const item = shopItems[itemId];
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('shop-item');
+        itemDiv.innerHTML = `
+            <span>${item.name} (${item.price}G)</span>
+            <button id="buy-${item.id}" ${item.unlocked ? 'disabled' : ''}>Buy</button>
+        `;
+
+        const buyButton = itemDiv.querySelector(`#buy-${item.id}`);
+        if (buyButton) {
+            buyButton.disabled = item.unlocked || player.bank < item.price;
+        }
+
+        // Lock overlay hozzáadása, ha az item le van zárva
+        if (item.unlocked) {
+            // Már megvásárolt, nem kell overlay
+        } else if (player.bank < item.price) {
+            const lockOverlay = document.createElement('div');
+            lockOverlay.classList.add('lock-overlay');
+            lockOverlay.innerHTML = '<img src="images/lock.png" alt="Locked">'; // Feltételezve, hogy van egy lock.png kép
+            itemDiv.appendChild(lockOverlay);
+        }
+
+        shopItemsContainer.appendChild(itemDiv);
+    }
+
+    // Update potion prices in shop modal
+    if (shopPotion1PriceElement) shopPotion1PriceElement.textContent = gameModifiers.POTION_LV1_PRICE;
+    if (shopPotion2PriceElement) shopPotion2PriceElement.textContent = gameModifiers.POTION_LV2_PRICE;
+    if (shopPotion3PriceElement) shopPotion3PriceElement.textContent = gameModifiers.POTION_LV3_PRICE;
+
+    // Update potion prices in combat UI
+    const potion1PriceElement = document.getElementById('potion-1-price');
+    const potion2PriceElement = document.getElementById('potion-2-price');
+    const potion3PriceElement = document.getElementById('potion-3-price');
+
+    if (potion1PriceElement) potion1PriceElement.textContent = gameModifiers.POTION_LV1_PRICE;
+    if (potion2PriceElement) potion2PriceElement.textContent = gameModifiers.POTION_LV2_PRICE;
+    if (potion3PriceElement) potion3PriceElement.textContent = gameModifiers.POTION_LV3_PRICE;
+}
+
+// Spellek költségeinek frissítése
+function updateSpellCosts() {
+    if (thirdEyeCostElement) thirdEyeCostElement.textContent = gameModifiers.THIRD_EYE_PRICE;
+    if (boostSpellCostElement) boostSpellCostElement.textContent = gameModifiers.BOOST_SPELL_PRICE;
+}
+
+
+// Kockadobások kijelzése
+export function displayPlayerDice(results) {
+    playerDiceResultsElement.innerHTML = ''; // Törli az előző dobásokat
+    results.forEach(roll => {
+        const span = document.createElement('span');
+        span.classList.add('dice-roll-number'); // Használjuk a CSS-ben definiált stílust
+        span.textContent = roll;
+        playerDiceResultsElement.appendChild(span);
+    });
+}
+
+export function displayMobDice(results) {
+    mobDiceResultsElement.innerHTML = ''; // Törli az előző dobásokat
+    results.forEach(roll => {
+        const span = document.createElement('span');
+        span.classList.add('dice-roll-number'); // Használjuk a CSS-ben definiált stílust
+        span.textContent = roll;
+        mobDiceResultsElement.appendChild(span);
+    });
+}
+
+// Harci kijelzők resetelése (dobások és predikció)
+export function resetFightDisplay() {
+    playerDiceResultsElement.innerHTML = '';
+    mobDiceResultsElement.innerHTML = '';
+    displayMobPredictedAction('???'); // Visszaállítja a predikciót alapértékre
 }
