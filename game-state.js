@@ -54,30 +54,30 @@ export const gameModifiers = {
     // Játékos statisztika módosítók (n = player.level) [cite: 3]
     PLAYER_HP_BASE: 100,
     PLAYER_HP_PER_LEVEL: 10,
-    PLAYER_DAMAGE_Y: 1.5, [cite: 3]
-    PLAYER_DAMAGE_Z_MIN: 2, [cite: 3]
-    PLAYER_DAMAGE_Z_MAX: 12, [cite: 3]
+    PLAYER_DAMAGE_Y: 1.5,
+    PLAYER_DAMAGE_Z_MIN: 2,
+    PLAYER_DAMAGE_Z_MAX: 12,
     PLAYER_LVL_UP_EXP_Y: 42,
     PLAYER_LVL_UP_EXP_Z: 50,
 
     // Mob statisztika módosítók (n = floorLevel)
-    MOB_HP_Y: 46.2, [cite: 3]
-    MOB_HP_Z_MIN: 16, [cite: 3]
-    MOB_HP_Z_MAX: 40, [cite: 3]
+    MOB_HP_Y: 46.2,
+    MOB_HP_Z_MIN: 16, 
+    MOB_HP_Z_MAX: 40, 
     MOB_DAMAGE_Y: 47, // Példa érték (ha a PDF nem specifikálta, ez csak egy feltételezés)
     MOB_DAMAGE_Z_MIN: 1, // Példa érték
     MOB_DAMAGE_Z_MAX: 3, // Példa érték
 
     // XP drop módosítók (n = floorLevel)
-    MOB_XP_Y: 42, [cite: 4]
-    MOB_XP_Z_MIN: 1, [cite: 4]
-    MOB_XP_Z_MAX: 3, [cite: 4]
+    MOB_XP_Y: 42, 
+    MOB_XP_Z_MIN: 1, 
+    MOB_XP_Z_MAX: 3, 
 
     // Arany drop módosítók (n = floorLevel) - FRISSÍTVE a legutóbbi pontosítás szerint
-    GOLD_DROP_MIN_Y: 49.97999, [cite: 4]
-    GOLD_DROP_MIN_Z: 0.04, [cite: 4]
-    GOLD_DROP_MAX_Y: 49.9899979, [cite: 4]
-    GOLD_DROP_MAX_Z: 0.08, [cite: 4]
+    GOLD_DROP_MIN_Y: 49.97999, 
+    GOLD_DROP_MIN_Z: 0.04, 
+    GOLD_DROP_MAX_Y: 49.9899979, 
+    GOLD_DROP_MAX_Z: 0.08, 
 
     // Potion árak és gyógyítási módosítók (n = player.level) - FRISSÍTVE
     POTION_PRICE_SCALAR_LV1: 0.83,
