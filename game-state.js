@@ -8,7 +8,7 @@ export const player = {
     currentHp: 0,
     baseAttack: 0, // Ezt is számolni kell (Játékos sebzése)
     attackMultiplier: 1,
-    baseAttackMultiplier: 1,
+    baseAttackMultiplier: 1, // Boost spell miatt
     armor: 0,
     healStat: 5,
     potions: { 1: 1, 2: 1, 3: 1 },
@@ -16,7 +16,11 @@ export const player = {
     activeSpells: {
         thirdEye: false,
         boostSpell: false
-    }
+    },
+    // ÚJ: Kockadobás adatok a játékosnak
+    diceCount: 2, // Játékos 2 kockával dob
+    lastRollResults: [], // Itt tároljuk a játékos utolsó dobásainak eredményét
+    currentAction: null // Tárolja a játékos választott akcióját (Attack, Defend, Heal)
 };
 
 export const mob = {
@@ -33,6 +37,16 @@ export const mob = {
     maxMobHpCalculated: 0,
     minMobXpCalculated: 0,
     maxMobXpCalculated: 0,
+    // ÚJ: Kockadobás adatok a mobnak
+    diceCount: 4, // Mob 4 kockával dob
+    lastRollResults: [], // Itt tároljuk a mob utolsó dobásainak eredményét
+    predictedAction: null, // ÚJ: A mob által választott akció (Attack, Defend, Heal)
+    // ÚJ: Mob akciók esélyei (százalékban)
+    actionChances: {
+        attack: 60, // 60% esély a támadásra
+        defend: 25, // 25% esély a védekezésre
+        heal: 15     // 15% esély a gyógyításra
+    }
 };
 
 export const gameModifiers = {
@@ -71,28 +85,26 @@ export const gameModifiers = {
     PLAYER_LVL_UP_EXP_Z: 10,
 
     // Potion árak (ezekről még nem kaptunk Y és Z paramétereket, fix értékek, ha nem az univerzális képlet szerint számolódnak)
-    // Ha az univerzális képlet szerint kell számolni, akkor ide kellenek majd a paraméterek, pl.:
-    // POTION_PRICE_LV1_Y: ...,
-    // POTION_PRICE_LV1_Z: ...,
-    // POTION_PRICE_LV2_Y: ...,
-    // POTION_PRICE_LV2_Z: ...,
-    // POTION_PRICE_LV3_Y: ...,
-    // POTION_PRICE_LV3_Z: ...,
-    
-    // Ideiglenes, fix poti árak (ha nem a képlet alapján mennek):
     POTION_LV1_PRICE: 20,
     POTION_LV2_PRICE: 40,
     POTION_LV3_PRICE: 80,
 
     // Player HP (ezekről még nem kaptunk Y és Z paramétereket, addig is alapértelmezett)
-    // Ha az univerzális képlet szerint kell számolni, akkor ide kellenek majd a paraméterek, pl.:
-    // PLAYER_HP_Y: ...,
-    // PLAYER_HP_Z: ...,
+    // IDEIGLENES, amíg nem kapunk paramétereket
+    PLAYER_HP_BASE: 100,
+    PLAYER_HP_PER_LEVEL: 10,
 
-    // További módosítók (ha vannak, pl. amik a diceRoll-ban voltak)
-    mod1: 10,
-    mod2: 0.8,
-    mod3: 0.15,
+    // További módosítók (pl. kockadobás maximum értéke)
+    DICE_MAX_VALUE: 10, // Kockadobás max értéke (az eddigi mod1)
+
+    // Védekezés / Gyógyítás mechanika módosítók
+    DEFEND_DAMAGE_REDUCTION_PERCENT: 0.5, // 50% sebzéscsökkentés védekezéskor
+    HEAL_POTION_HEAL_AMOUNT: { // Poti gyógyítás mennyisége
+        1: 20,
+        2: 40,
+        3: 80
+    },
+    HEAL_BASE_AMOUNT: 5, // Alap gyógyítás (ha nincs poti)
 };
 
 export const shopItems = {
