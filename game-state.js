@@ -45,7 +45,7 @@ export const mob = {
     actionChances: {
         attack: 60, // 60% esély a támadásra
         defend: 25, // 25% esély a védekezésre
-        heal: 15     // 15% esély a gyógyításra
+        heal: 15    // 15% esély a gyógyításra
     }
 };
 
@@ -95,7 +95,7 @@ export const gameModifiers = {
     PLAYER_HP_PER_LEVEL: 10,
 
     // További módosítók (pl. kockadobás maximum értéke)
-    DICE_MAX_VALUE: 10, // Kockadobás max értéke (az eddigi mod1)
+    DICE_MAX_VALUE: 6, // *** EZT VÁLTOZTATTAM MEG 10-RŐL 6-RA! ***
 
     // Védekezés / Gyógyítás mechanika módosítók
     DEFEND_DAMAGE_REDUCTION_PERCENT: 0.5, // 50% sebzéscsökkentés védekezéskor
