@@ -44,7 +44,7 @@ body {
     box-sizing: border-box;
 }
 
-#gameLog {
+#player-log {
     width: 100%;
     height: 100%; /* Kitölti a maradék helyet */
     background: transparent;
@@ -455,6 +455,22 @@ button:disabled {
 #shopResetButton:hover {
     background-color: #d32f2f;
 }
+
+/* A span elemek, amik a dobás eredményét mutatják - ezekre vonatkozzon a kocka stílus */
+#player-dice-display,
+#mob-dice-display {
+    width: 45px; /* A korábbi .dice-result-ből */
+    height: 45px; /* A korábbi .dice-result-ből */
+    border: 1px solid #555; /* A korábbi .dice-result-ből */
+    background-color: #444; /* Sötétebb háttér a kockáknak */
+    display: flex; /* Hogy a szám középen legyen */
+    justify-content: center;
+    align-items: center;
+    font-size: 28px; /* Nagyobb betűméret a számhoz */
+    font-weight: bold;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    color: #f0f0f0; /* Szöveg színe */
 
 .lock-overlay {
     position: absolute;
