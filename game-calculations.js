@@ -67,7 +67,7 @@ export function calculateMobStats(floorLevel) {
 
 // XP és Arany jutalom kiszámítása a mob HP-ja alapján (interpolációval)
 // Ez a függvény most már belső, és a calculateMobStats hívja meg
-function calculateExpAndGoldRewardForMob(floorLevel, mobActualHp, minHpAtFloor, maxHpAtFloor) {
+export function calculateExpAndGoldRewardForMob(floorLevel, mobActualHp, minHpAtFloor, maxHpAtFloor) {
     // --- XP számítás ---
     const minExp = calculateUniversalValue(floorLevel, gameModifiers.MOB_XP_Y, gameModifiers.MOB_XP_Z_MIN);
     const maxExp = calculateUniversalValue(floorLevel, gameModifiers.MOB_XP_Y, gameModifiers.MOB_XP_Z_MAX);
