@@ -127,16 +127,52 @@ body {
     gap: 10px;
 }
 
-.roll-results {
+/* Dice Roll Displays (ÚJ) */
+.mob-dice-display, .player-dice-display {
     display: flex;
-    gap: 20px;
+    gap: 10px;
     font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px; /* Hely a Roll gomb és a dice display között */
 }
+
+.mob-dice-display {
+    justify-content: flex-start; /* Balra igazítjuk a mob dobásait */
+    width: 80%; /* Szélesség a center-panelen belül */
+}
+
+.player-dice-display {
+    justify-content: flex-end; /* Jobbra igazítjuk a játékos dobásait */
+    width: 80%; /* Szélesség a center-panelen belül */
+}
+
+.dice-result {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border: 1px solid #00FF00;
+    background-color: #004400;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
 
 .damage-display {
     min-height: 20px; /* Helyfoglalás a sebzés kijelzésnek */
     color: orange;
     font-weight: bold;
+}
+
+/* Player Action Buttons (ÚJ) */
+.player-action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    width: 100%;
+    justify-content: center;
 }
 
 /* Item Sections (Potions and Spells) */
@@ -377,4 +413,15 @@ button:disabled {
     margin-top: 20px;
     width: 100%; /* Szélesség a panelen belül */
     align-items: center;
+}
+
+/* Mob Action Prediction (ÚJ) */
+.mob-action-prediction {
+    margin-top: 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #00FF00;
+    background-color: #003300;
 }
