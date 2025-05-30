@@ -22,7 +22,7 @@ import {
 import { 
     calculatePlayerStats, 
     calculateMobStats, 
-    calculateExpAndGoldRewardForMob, // Megfelelő exportált név
+    calculateExpAndGoldRewardForMob, 
     calculatePotionStats,
     calculateDamage // Kiszámított sebzés függvény
 } from './game-calculations.js';
@@ -35,50 +35,48 @@ export function initGame() {
     // Játékos statisztikáinak beállítása a játékos szintje alapján
     calculatePlayerStats();
     // Mob generálása az aktuális toronyszinten
-    nextMob(); 
+    nextMob();    
     // Potion árak frissítése
-    // Fontos: a potion árak függnek a játékos szintjétől,
-    // így az initGame és levelUp után újra kell számolni.
     const potion1Stats = calculatePotionStats(1);
     const potion2Stats = calculatePotionStats(2);
     const potion3Stats = calculatePotionStats(3);
     renderPotionPrices(potion1Stats.price, potion2Stats.price, potion3Stats.price);
     
     // Kezdeti UI állapot beállítása
-    toggleRollButton(false); // Roll gomb alapból tiltva, amíg nem indítjuk a combatot
-    togglePlayerActionButtons(false); // Letiltjuk az akció gombokat
-    hideAllCombatButtons(); // Elrejtjük az akció gombok konténerét
-    toggleHealingUI(false); // Elrejtjük a gyógyítás UI-t
-    toggleGameButtons(true); // Engedélyezzük a Go Mob / Level Up/Down gombokat
-    hideDeathScreen(); // Elrejtjük a halál képernyőt
+    toggleRollButton(false);
+    togglePlayerActionButtons(false);
+    hideAllCombatButtons(true); // Rejtjük az akció gombok konténerét
+    toggleHealingUI(false);
+    toggleGameButtons(true);
+    hideDeathScreen();
 
     appendToLog("Game ready! Click 'Go Mob' to start a battle!");
-    updateUI(player, mob); // Kezdő UI frissítés
+    updateUI(player, mob);
 }
 
 // Mob váltása vagy új mob generálása
 export function nextMob() {
-    resetFightDisplay(); // Reseteljük a harci kijelzőket (kockák, predikció)
-    toggleGameButtons(true); // Engedélyezzük a Go Mob / Level Up/Down gombokat
-    togglePlayerActionButtons(false); // Tiltsuk a harci gombokat
-    hideAllCombatButtons(); // Rejtjük a harci gombokat (combatButtons és healingUI)
-    toggleRollButton(false); // Roll gomb alapból tiltott
+    resetFightDisplay();
+    toggleGameButtons(true);
+    togglePlayerActionButtons(false);
+    hideAllCombatButtons(true); // Rejtjük a harci gombokat (combatButtons és healingUI)
+    toggleRollButton(false);
 
     // Mob statisztikák számítása az aktuális torony szint alapján
-    calculateMobStats(player.floorLevel); // Ez hívja meg a calculateExpAndGoldRewardForMob-ot is
+    calculateMobStats(player.floorLevel);
 
-    appendToLog(`A ${mob.name} (LV${mob.level}) jelent meg! HP: ${mob.currentHp}/${mob.maxHp}`);
+    appendToLog(`A ${mob.name} (LV${mob.level}) jelent meg! HP: ${Math.ceil(mob.currentHp)}/${Math.ceil(mob.maxHp)}`);
     updateUI(player, mob);
 }
 
 // Szintet lépés
 export function levelUp() {
     player.level++;
-    player.currentExp -= player.expToNextLevel; // Levonjuk a szintlépéshez szükséges XP-t
-    calculatePlayerStats(); // Frissítjük a játékos statisztikáit az új szint alapján (maxHp, baseAttack, expToNextLevel)
-    player.currentHp = player.maxHp; // Teljes HP-ra gyógyulás szintlépéskor
+    player.currentExp -= player.expToNextLevel;
+    calculatePlayerStats();
+    player.currentHp = player.maxHp;
     appendToLog(`Gratulálunk! ${player.level}. szintre léptél!`);
-    // Frissítjük a potion árakat is, mivel a játékos szintjéhez kötődnek
+    
     const potion1Stats = calculatePotionStats(1);
     const potion2Stats = calculatePotionStats(2);
     const potion3Stats = calculatePotionStats(3);
@@ -90,10 +88,10 @@ export function levelUp() {
 export function gainExp(amount) {
     player.currentExp += amount;
     appendToLog(`Szereztél ${amount} XP-t!`);
-    if (player.currentExp >= player.expToNextLevel && player.level < gameModifiers.MAX_LEVEL) { // Max szint ellenőrzés
+    if (player.currentExp >= player.expToNextLevel && player.level < gameModifiers.MAX_LEVEL) {
         levelUp();
     } else if (player.level >= gameModifiers.MAX_LEVEL) {
-        player.currentExp = player.expToNextLevel; // XP marad a max szinten
+        player.currentExp = player.expToNextLevel;
         appendToLog("Elérted a maximális szintet!");
     }
     updateUI(player, mob);
@@ -109,12 +107,12 @@ export function gainGold(amount) {
 // Kör eleji fázis (Pre-combat)
 export function startCombat() {
     appendToLog("Csata kezdődik!");
-    toggleGameButtons(false); // Letiltjuk a Go Mob / Level Up/Down gombokat
-    togglePlayerActionButtons(false); // Harci gombok alapból tiltva
+    toggleGameButtons(false);
+    togglePlayerActionButtons(false);
     hideAllCombatButtons(false); // Megmutatjuk a harci gombok konténerét
-    toggleHealingUI(true); // Megmutatjuk a gyógyítás UI-t is
-    toggleRollButton(true); // Engedélyezzük a Roll gombot
-    resetFightDisplay(); // Töröljük az előző kör dobásait/predikcióját
+    toggleHealingUI(true);
+    toggleRollButton(true);
+    resetFightDisplay();
     updateUI(player, mob);
 }
 
@@ -122,22 +120,22 @@ export function startCombat() {
 export function rollForCombat() {
     if (player.currentHp <= 0) {
         appendToLog("Halott vagy, nem tudsz dobni!");
-        showDeathScreen(); // Megmutatjuk a halál képernyőt
+        showDeathScreen();
         return;
     }
 
-    toggleRollButton(false); // Letiltjuk a Roll gombot, amíg nem dönt a játékos
-    togglePlayerActionButtons(true); // Engedélyezzük a támadás, védekezés, gyógyítás gombokat
+    toggleRollButton(false);
+    togglePlayerActionButtons(true);
 
     // Játékos kockadobása
-    player.lastRollResults = rollDice(player.diceCount); // Visszakapjuk a dobott értékek tömbjét
-    player.lastRollTotal = player.lastRollResults.reduce((sum, roll) => sum + roll, 0); // Kiszámoljuk az összeget
-    displayPlayerDice(player.lastRollResults); // Kijelezzük a játékos dobásait (egyesével)
+    player.lastRollResults = rollDice(player.diceCount);
+    player.lastRollTotal = player.lastRollResults.reduce((sum, roll) => sum + roll, 0);
+    displayPlayerDice(player.lastRollResults);
 
     // Mob kockadobása
-    mob.lastRollResults = rollDice(mob.diceCount); // Visszakapjuk a dobott értékek tömbjét
-    mob.lastRollTotal = mob.lastRollResults.reduce((sum, roll) => sum + roll, 0); // Kiszámoljuk az összeget
-    displayMobDice(mob.lastRollResults); // Kijelezzük a mob dobásait (egyesével)
+    mob.lastRollResults = rollDice(mob.diceCount);
+    mob.lastRollTotal = mob.lastRollResults.reduce((sum, roll) => sum + roll, 0);
+    displayMobDice(mob.lastRollResults);
 
     // Mob akciójának predikciója (ha van Third Eye)
     predictMobAction();
@@ -155,29 +153,39 @@ export function handlePlayerAction(actionType) {
     }
 
     player.currentAction = actionType;
-    executeCombatAction(); // Mostantól ez hajtja végre az akciókat
+    executeCombatAction();
 }
 
 // A harci akciók végrehajtása (a dobások után)
 function executeCombatAction() {
-    togglePlayerActionButtons(false); // Letiltjuk a harci gombokat akció után
-    displayMobPredictedAction('???'); // Töröljük a predikciót, amint a mob cselekszik (a UI-managerben nullázzuk)
+    togglePlayerActionButtons(false);
+    displayMobPredictedAction('???');
 
     // 1. Játékos akció
     let playerDamageDealt = 0;
     let playerHealAmount = 0;
     
-    // A calculateDamage függvény már a game-calculations.js-ből jön.
     if (player.currentAction === 'attack') {
-        playerDamageDealt = calculateDamage(player.baseAttack, player.lastRollTotal, player.attackMultiplier, mob.armor);
+        // LOGOLÁS: Játékos támadás előtt
+        console.log("Játékos támadás számítás paraméterei:");
+        console.log("  baseAttack:", player.baseAttack);
+        console.log("  totalDiceRoll:", player.lastRollTotal);
+        console.log("  attackMultiplier (player.baseAttackMultiplier):", player.baseAttackMultiplier);
+        console.log("  attackMultiplier (player.attackMultiplier, ha van egyéb):", player.attackMultiplier); // Hozzáadtam, ha van ideiglenes szorzó
+        console.log("  player.activeSpells.boostSpell:", player.activeSpells.boostSpell);
+
+        // A calculateDamage függvény már nem várja a targetArmor-t.
+        // Itt a player.attackMultiplier-t használjuk az ideiglenes szorzókat is figyelembe véve.
+        playerDamageDealt = calculateDamage(player.baseAttack, player.lastRollTotal, player.attackMultiplier);
         mob.currentHp -= playerDamageDealt;
-        appendToLog(`Támadtál! ${mob.name} ${playerDamageDealt} sebzést szenvedett.`);
-        showFloatingText(document.getElementById('mob-avatar'), `${playerDamageDealt}`, true);
+        appendToLog(`Támadtál! ${mob.name} ${Math.ceil(playerDamageDealt)} sebzést szenvedett.`);
+        showFloatingText(document.getElementById('mob-avatar'), `${Math.ceil(playerDamageDealt)}`, true);
+        // LOGOLÁS: Játékos támadás után
+        console.log("Játékos által okozott sebzés:", playerDamageDealt);
     } else if (player.currentAction === 'defend') {
         appendToLog(`Védekeztél!`);
     } else if (player.currentAction === 'heal') {
-        // Ez az alap gyógyító képesség, nem poti használat!
-        playerHealAmount = Math.ceil(player.maxHp * gameModifiers.POTION_HEAL_SCALAR_LV1); // Példa: 1. szintű poti gyógyításának mértékét vesszük alapnak
+        playerHealAmount = Math.ceil(player.maxHp * gameModifiers.POTION_HEAL_SCALAR_LV1);
         player.currentHp = Math.min(player.maxHp, player.currentHp + playerHealAmount);
         appendToLog(`Gyógyítottál! Gyógyultál: ${playerHealAmount} HP-t.`);
         showFloatingText(document.getElementById('player-avatar'), `+${playerHealAmount}`, false);
@@ -185,36 +193,50 @@ function executeCombatAction() {
 
     // Ellenőrizzük, hogy a mob meghalt-e
     if (mob.currentHp <= 0) {
-        mob.currentHp = 0; // Biztosítjuk, hogy ne legyen negatív
+        mob.currentHp = 0;
         appendToLog(`${mob.name} legyőzve!`);
         gainExp(mob.xpReward);
         gainGold(mob.coinReward);
-        setTimeout(() => { // Késleltetés, hogy a floating text látszódjon
-            nextMob(); // Új mob, új kör, új Roll gomb
-        }, 1500); // Várjunk egy kicsit a következő mobra
+        setTimeout(() => {
+            nextMob();
+        }, 1500);
         updateUI(player, mob);
         return;
     }
 
     // 2. Mob akció (csak ha a mob még él)
-    setTimeout(() => { // Késleltetés a mob akciójához
+    setTimeout(() => {
         let mobDamageDealt = 0;
         let mobHealAmount = 0;
         
-        const mobAction = chooseMobAction(); // Mob akciójának kiválasztása
-        mob.predictedAction = '???'; // Akció megtörtént, visszaállítjuk
-        displayMobPredictedAction(mob.predictedAction); // Frissítjük a UI-t
+        const mobAction = chooseMobAction();
+        mob.predictedAction = '???';
+        displayMobPredictedAction(mob.predictedAction);
 
         if (mobAction === 'attack') {
-            mobDamageDealt = calculateDamage(mob.baseAttack, mob.lastRollTotal, 1, player.armor); // Mob attackMultiplier-e 1
+            // LOGOLÁS: Mob támadás előtt
+            console.log("Mob támadás számítás paraméterei:");
+            console.log("  baseAttack:", mob.baseAttack);
+            console.log("  totalDiceRoll:", mob.lastRollTotal);
+            console.log("  attackMultiplier (mob):", 1); // Mob támadás szorzója fixen 1
+            console.log("  player.armor (játékos védekezés előtt):", player.armor);
+
+            // A calculateDamage függvény már nem várja a targetArmor-t.
+            // A játékos armorját a mob sebzéséből itt KELL kivonni.
+            let rawMobDamage = calculateDamage(mob.baseAttack, mob.lastRollTotal, 1); // Mob attackMultiplier-e 1
+            mobDamageDealt = rawMobDamage - player.armor; // KIVONJUK a játékos páncélját
+            mobDamageDealt = Math.max(0, mobDamageDealt); // Sebzés nem lehet negatív
+
             if (player.currentAction === 'defend') {
                 mobDamageDealt = Math.ceil(mobDamageDealt * gameModifiers.DEFEND_DAMAGE_REDUCTION_PERCENT);
-                appendToLog(`A ${mob.name} megtámadott, de kivédted! ${mobDamageDealt} sebzést szenvedtél.`);
+                appendToLog(`A ${mob.name} megtámadott, de kivédted! ${Math.ceil(mobDamageDealt)} sebzést szenvedtél.`);
             } else {
-                appendToLog(`A ${mob.name} megtámadott! ${mobDamageDealt} sebzést szenvedtél.`);
+                appendToLog(`A ${mob.name} megtámadott! ${Math.ceil(mobDamageDealt)} sebzést szenvedtél.`);
             }
             player.currentHp -= mobDamageDealt;
-            showFloatingText(document.getElementById('player-avatar'), `${mobDamageDealt}`, true);
+            showFloatingText(document.getElementById('player-avatar'), `${Math.ceil(mobDamageDealt)}`, true);
+            // LOGOLÁS: Mob támadás után
+            console.log("Mob által okozott sebzés (játékos armor levonása után):", mobDamageDealt);
         } else if (mobAction === 'defend') {
             appendToLog(`A ${mob.name} védekezett!`);
         } else if (mobAction === 'heal') {
@@ -227,13 +249,13 @@ function executeCombatAction() {
 
         // Ellenőrizzük, hogy a játékos meghalt-e
         if (player.currentHp <= 0) {
-            player.currentHp = 0; // Biztosítjuk, hogy ne legyen negatív
+            player.currentHp = 0;
             appendToLog("Meghaltál! A játék véget ért.");
             togglePlayerActionButtons(false);
             toggleHealingUI(false);
-            toggleGameButtons(false); // Letiltjuk az összes játék gombot
-            toggleRollButton(false); // Letiltjuk a Roll gombot is
-            showDeathScreen(); // Megmutatjuk a halál képernyőt
+            toggleGameButtons(false);
+            toggleRollButton(false);
+            showDeathScreen();
             updateUI(player, mob);
             return;
         }
@@ -241,7 +263,7 @@ function executeCombatAction() {
         // Kör vége, engedélyezzük a Roll gombot a következő körhöz
         toggleRollButton(true);
         updateUI(player, mob);
-    }, 1000); // 1 másodperc késleltetés a mob akció előtt
+    }, 1000);
 
     updateUI(player, mob);
 }
@@ -249,12 +271,12 @@ function executeCombatAction() {
 // Mob akciójának előrejelzése (Third Eye Spellhez)
 function predictMobAction() {
     if (player.activeSpells.thirdEye) {
-        mob.predictedAction = chooseMobAction(); // Itt ténylegesen kiválasztjuk a mob akcióját
+        mob.predictedAction = chooseMobAction();
         appendToLog(`A Harmadik Szem látja: A ${mob.name} valószínűleg ${mob.predictedAction} akciót hajt végre!`);
         displayMobPredictedAction(mob.predictedAction);
     } else {
         mob.predictedAction = '???';
-        displayMobPredictedAction(mob.predictedAction); // Biztosítjuk a "???" megjelenítését
+        displayMobPredictedAction(mob.predictedAction);
     }
 }
 
@@ -266,13 +288,12 @@ function chooseMobAction() {
     for (const action in mob.actionChances) {
         cumulativeChance += mob.actionChances[action];
         if (rand < cumulativeChance) {
-            // A "Támad", "Véd", "Gyógyít" stringek visszatérítése a UI-hoz
             if (action === 'attack') return 'Támad';
             if (action === 'defend') return 'Véd';
             if (action === 'heal') return 'Gyógyít';
         }
     }
-    return 'Támad'; // Alapértelmezett
+    return 'Támad';
 }
 
 // Kockadobás - MOST MÁR VISSZATÉRÍTI AZ EGYES DOBÁSOKAT TÖMBKÉNT!
@@ -282,7 +303,7 @@ export function rollDice(count) {
         const roll = Math.floor(Math.random() * gameModifiers.DICE_MAX_VALUE) + 1;
         results.push(roll);
     }
-    return results; // Visszatérítjük a dobott értékek tömbjét
+    return results;
 }
 
 
@@ -290,22 +311,22 @@ export function rollDice(count) {
 
 export function enterShop() {
     appendToLog("Beléptél a boltba!");
-    updateShopButtons(player.bank, shopItems); // Frissíti a shop gombokat és árakat
-    // Potion árakat is frissítjük
+    updateShopButtons(player.bank, shopItems);
+    
     const potion1Stats = calculatePotionStats(1);
     const potion2Stats = calculatePotionStats(2);
     const potion3Stats = calculatePotionStats(3);
     renderPotionPrices(potion1Stats.price, potion2Stats.price, potion3Stats.price);
 
-    toggleGameButtons(false); // Letiltja a játék gombokat
-    document.getElementById('shop-modal').style.display = 'flex'; // Modal megjelenítése
+    toggleGameButtons(false);
+    document.getElementById('shop-modal').style.display = 'flex';
     updateUI(player, mob);
 }
 
 export function exitShop() {
     appendToLog("Kiléptél a boltból.");
-    toggleGameButtons(true); // Visszaengedi a játék gombokat
-    document.getElementById('shop-modal').style.display = 'none'; // Modal elrejtése
+    toggleGameButtons(true);
+    document.getElementById('shop-modal').style.display = 'none';
     updateUI(player, mob);
 }
 
@@ -317,23 +338,22 @@ export function buyItem(itemId) {
         return;
     }
 
-    if (item.unlocked) { // Ha már megvásárolta
+    if (item.unlocked) {
         appendToLog(`${item.name} már megvásároltad!`);
         return;
     }
 
     if (player.bank >= item.price) {
         player.bank -= item.price;
-        if (item.effect.attackMultiplier) { // A bronzeSword pl. attackMultiplier-t ad
+        if (item.effect.attackMultiplier) {
             player.baseAttackMultiplier += item.effect.attackMultiplier;
         }
         if (item.effect.armor) {
             player.armor += item.effect.armor;
         }
-        // Itt lehetne más effekt is, pl. maxHp növelés
-        item.unlocked = true; // Megjelöljük, hogy megvásárolt
+        item.unlocked = true;
         appendToLog(`${item.name} megvásárolva!`);
-        updateShopButtons(player.bank, shopItems); // Frissítjük a shop gombokat és árakat
+        updateShopButtons(player.bank, shopItems);
         updateUI(player, mob);
     } else {
         appendToLog("Nincs elegendő aranyad!");
@@ -342,14 +362,14 @@ export function buyItem(itemId) {
 
 // Potion vásárlása
 export function buyPotionFromShop(potionLevel) {
-    const potionStats = calculatePotionStats(potionLevel); // Dinamikusan számolt ár és gyógyítás
+    const potionStats = calculatePotionStats(potionLevel);
     const price = potionStats.price;
 
     if (player.bank >= price) {
         player.bank -= price;
         player.potions[potionLevel]++;
         appendToLog(`Level ${potionLevel} poti megvásárolva ${price} aranyért!`);
-        updateShopButtons(player.bank, shopItems); // Frissítjük a shop gombokat
+        updateShopButtons(player.bank, shopItems);
         updateUI(player, mob);
     } else {
         appendToLog("Nincs elegendő aranyad a potihoz!");
@@ -359,7 +379,7 @@ export function buyPotionFromShop(potionLevel) {
 // Potion használata
 export function usePotion(potionLevel) {
     if (player.potions[potionLevel] > 0) {
-        const potionStats = calculatePotionStats(potionLevel); // Dinamikusan számolt gyógyítás
+        const potionStats = calculatePotionStats(potionLevel);
         const healAmount = potionStats.heal;
 
         player.potions[potionLevel]--;
@@ -374,21 +394,19 @@ export function usePotion(potionLevel) {
 
 // --- Spellek kezelése ---
 export function toggleThirdEye() {
-    // Ha már aktív, kikapcsoljuk
     if (player.activeSpells.thirdEye) {
         player.activeSpells.thirdEye = false;
         appendToLog("Harmadik Szem kikapcsolva.");
-        mob.predictedAction = '???'; // Elrejtjük a predikciót
+        mob.predictedAction = '???';
         updateUI(player, mob);
         return;
     }
 
-    // Költség ellenőrzés és aktiválás
     if (player.bank >= gameModifiers.THIRD_EYE_PRICE) {
         player.bank -= gameModifiers.THIRD_EYE_PRICE;
         player.activeSpells.thirdEye = true;
         appendToLog(`Harmadik Szem aktiválva! Költség: ${gameModifiers.THIRD_EYE_PRICE} arany.`);
-        predictMobAction(); // Azonnal megmutatja a mob akcióját
+        predictMobAction();
         updateUI(player, mob);
     } else {
         appendToLog(`Nincs elegendő arany a Harmadik Szem aktiválásához (${gameModifiers.THIRD_EYE_PRICE} arany szükséges).`);
@@ -396,21 +414,18 @@ export function toggleThirdEye() {
 }
 
 export function toggleBoostSpell() {
-    // Ha már aktív, kikapcsoljuk
     if (player.activeSpells.boostSpell) {
         player.activeSpells.boostSpell = false;
-        player.attackMultiplier = player.baseAttackMultiplier; // Visszaállítjuk az alap szorzót
+        player.attackMultiplier = player.baseAttackMultiplier;
         appendToLog("Támadás Fókusz varázslat kikapcsolva.");
         updateUI(player, mob);
         return;
     }
 
-    // Költség ellenőrzés és aktiválás
     if (player.bank >= gameModifiers.BOOST_SPELL_PRICE) {
         player.bank -= gameModifiers.BOOST_SPELL_PRICE;
         player.activeSpells.boostSpell = true;
         appendToLog(`Támadás Fókusz varázslat aktiválva! Költség: ${gameModifiers.BOOST_SPELL_PRICE} arany.`);
-        // A sebzés számításnál már bele van építve a multiplier
         updateUI(player, mob);
     } else {
         appendToLog(`Nincs elegendő arany a Támadás Fókusz varázslat aktiválásához (${gameModifiers.BOOST_SPELL_PRICE} arany szükséges).`);
@@ -423,7 +438,7 @@ export function ascendLevel() {
     if (player.floorLevel < gameModifiers.MAX_LEVEL) {
         player.floorLevel++;
         appendToLog(`Feljutottál a ${player.floorLevel}. toronyszintre!`);
-        nextMob(); // Új mob generálása az új szinten
+        nextMob();
     } else {
         appendToLog("Már a torony legtetején vagy!");
     }
@@ -434,7 +449,7 @@ export function descendLevel() {
     if (player.floorLevel > 1) {
         player.floorLevel--;
         appendToLog(`Lejutottál a ${player.floorLevel}. toronyszintre!`);
-        nextMob(); // Új mob generálása az új szinten
+        nextMob();
     } else {
         appendToLog("Már a torony alján vagy!");
     }
@@ -447,18 +462,24 @@ export function handleDeath() {
     // Reseteljük a játék állapotát
     player.level = 1;
     player.currentExp = 0;
-    player.currentHp = 0; // Hogy az initGame beállítsa max HP-ra
+    player.currentHp = 0;
     player.bank = 0;
     player.potions = { 1: 1, 2: 0, 3: 0 };
+    player.diceCount = 1; // Dice count reset
+    player.lastRollResults = [];
+    player.lastRollTotal = 0;
+    player.currentAction = null;
     player.floorLevel = 1;
+    player.baseAttack = 10; // Base attack reset
+    player.baseAttackMultiplier = 1; // Attack multiplier reset
+    player.attackMultiplier = 1; // Attack multiplier reset
+    player.armor = 0; // Armor reset
     player.activeSpells = { thirdEye: false, boostSpell: false };
-    player.baseAttackMultiplier = 1;
-    player.attackMultiplier = 1;
-    player.armor = 0;
 
-    resetShopItems(); // Shop elemek visszaállítása unlocked: false-ra
 
-    hideDeathScreen(); // Elrejtjük a halál képernyőt
-    initGame(); // Újraindítjuk a játékot
+    resetShopItems();
+
+    hideDeathScreen();
+    initGame();
     updateUI(player, mob);
 }
