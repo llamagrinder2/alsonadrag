@@ -1,7 +1,7 @@
 // game-logic.js
 
 import { player, mob, gameModifiers } from './game-state.js';
-import { updateUI, appendToLog, showFloatingText, toggleGameButtons, togglePlayerActionButtons, hideAllCombatButtons, toggleHealingUI, displayMobDice, displayPlayerDice, displayMobPredictedAction } from './ui-manager.js';
+import { updateUI, appendToLog, showFloatingText, toggleGameButtons, togglePlayerActionButtons, hideAllCombatButtons, toggleHealingUI, displayMobDice, displayPlayerDice, displayMobPredictedAction, resetFightDisplay } from './ui-manager.js';
 import { calculatePlayerStats, calculateExpToNextLevel, calculateUniversalValue } from './game-calculations.js';
 import { createHealingButtons, usePotion } from './healing.js'; // healing.js importálása
 
