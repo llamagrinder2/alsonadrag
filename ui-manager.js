@@ -25,7 +25,7 @@ const attackActionButton = document.getElementById('attackActionButton');
 const defendActionButton = document.getElementById('defendActionButton');
 const healActionButton = document.getElementById('healActionButton');
 
-// Dice result display elements (ÚJ)
+// Dice result display elements
 const mobRollResultElements = [
     document.getElementById('mobRollResult1'),
     document.getElementById('mobRollResult2'),
@@ -44,6 +44,28 @@ const ascendLevelButton = document.getElementById('ascendLevelButton');
 const thirdEyeButton = document.getElementById('thirdEyeButton');
 const boostSpellButton = document.getElementById('boostSpellButton');
 const enterShopButton = document.getElementById('enterShopButton');
+
+// === MÓDOSÍTOTT: Dobókocka ikonok (csak 1-6) ===
+const diceIcons = {
+    1: '⚀',
+    2: '⚁',
+    3: '⚂',
+    4: '⚃',
+    5: '⚄',
+    6: '⚅'
+};
+
+// Módosított függvény, ami csak az 1-6 közötti értékeket kezeli
+function getDiceIcon(roll) {
+    return diceIcons[roll] || roll; // Ha valamiért nem 1-6 közötti szám, írja ki a számot
+}
+
+
+const mobActionIcons = {
+    'attack': '⚔',
+    'defend': '🛡',
+    'heal': '✚'
+};
 
 
 // UI frissítése
@@ -96,23 +118,23 @@ export function showFloatingText(targetElement, text, color) {
     });
 }
 
-// Mob kockadobások kijelzése
+// Mob kockadobások kijelzése ICONOKKAL
 export function displayMobDice(rolls) {
     mobRollResultElements.forEach((element, index) => {
-        element.textContent = rolls[index] !== undefined ? rolls[index] : '0';
+        element.textContent = rolls[index] !== undefined ? getDiceIcon(rolls[index]) : ''; // Üres string, ha nincs dobás
     });
 }
 
-// Játékos kockadobások kijelzése
+// Játékos kockadobások kijelzése ICONOKKAL
 export function displayPlayerDice(rolls) {
     playerRollResultElements.forEach((element, index) => {
-        element.textContent = rolls[index] !== undefined ? rolls[index] : '0';
+        element.textContent = rolls[index] !== undefined ? getDiceIcon(rolls[index]) : ''; // Üres string, ha nincs dobás
     });
 }
 
-// Mob akció előrejelzés kijelzése
+// Mob akció előrejelzés kijelzése ICONOKKAL
 export function displayMobPredictedAction(action) {
-    mobPredictedActionText.textContent = action.toUpperCase();
+    mobPredictedActionText.textContent = mobActionIcons[action] || '???'; // Ha nincs ikon, kérdőjelek
 }
 
 // Harci kijelzők (roll eredmények, sebzések) resetelése
@@ -121,7 +143,7 @@ export function resetFightDisplay() {
     displayMobDice([]); // Üres tömbel reseteli
     document.getElementById('playerDamageDisplay').textContent = '';
     document.getElementById('mobDamageDisplay').textContent = '';
-    displayMobPredictedAction('???');
+    displayMobPredictedAction('???'); // Visszaállítjuk a mob akció előrejelzést
 }
 
 // Fő játék gombok engedélyezése/letiltása (Go Mob, Level, Shop)
