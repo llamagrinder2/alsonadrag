@@ -1,153 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fantasy Clicker RPG</title>
+    <title>Szörnyküzdelem</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-container">
-        <div class="main-content-area">
-            <div class="mob-info-block section-frame">
-                <img src="https://via.placeholder.com/100x100?text=Mob" alt="Mob Image" id="mob-avatar" class="mob-avatar">
-                <div class="hp-info">
-                    <p>Name: <span id="mob-name">Goblin</span> (LV<span id="mob-level">1</span>)</p>
-                    <p>HP: <span id="mob-hp">50</span>/<span id="mob-max-hp">50</span></p>
-                    <div class="hp-bar-container">
-                        <div class="hp-bar mob-hp-bar"></div>
-                    </div>
+        <div class="stats-log-container">
+            <div class="player-stats">
+                <h2>Játékos</h2>
+                <div class="avatar-container">
+                    <img id="player-avatar" src="images/player_avatar.png" alt="Játékos Avatar">
                 </div>
-                <div class="dice-and-action-area">
-                    <div id="mob-dice-display" class="dice-results mob-dice-results">
-                        </div>
-                    <div class="mob-action-prediction-container">
-                        <span id="mob-predicted-action" class="mob-action-icon">???</span>
-                    </div>
+                <p>Szint: <span id="player-level">1</span></p>
+                <p>HP: <span id="player-current-hp"></span>/<span id="player-max-hp"></span></p>
+                <p>XP: <span id="player-current-exp"></span>/<span id="player-exp-to-next-level"></span></p>
+                <p>Arany: <span id="player-bank"></span></p>
+                <p>Alap Támadás: <span id="player-base-attack"></span></p>
+                <p>Páncél: <span id="player-armor"></span></p>
+                <p>Torony szint: <span id="player-floor-level"></span></p>
+                <p>1-es poti: <span id="potion-1-count"></span></p>
+                <p>2-es poti: <span id="potion-2-count"></span></p>
+                <p>3-as poti: <span id="potion-3-count"></span></p>
+            </div>
+
+            <div class="game-log">
+                <h3>Eseménynapló</h3>
+                <div id="log-output" class="log-output"></div>
+            </div>
+
+            <div class="mob-stats">
+                <h2>Mob</h2>
+                <div class="avatar-container">
+                    <img id="mob-avatar" src="images/mob_avatar.png" alt="Mob Avatar">
                 </div>
-                <div id="mob-floating-text" class="floating-text"></div>
-            </div>
-
-            <div class="player-info-block section-frame">
-                <div id="player-dice-display" class="dice-results player-dice-results">
-                    </div>
-                
-                <img src="https://via.placeholder.com/100x100?text=Player" alt="Player Image" id="player-avatar" class="player-avatar">
-                
-                <div class="hp-info">
-                    <p>HP: <span id="player-hp">100</span>/<span id="player-max-hp">100</span></p>
-                    <div class="hp-bar-container">
-                        <div class="hp-bar player-hp-bar"></div>
-                    </div>
-                </div>
-
-                <div class="xp-info">
-                    <p>Level: <span id="player-level">1</span></p>
-                    <p>XP: <span id="player-exp">0</span>/<span id="player-exp-to-next-level">100</span></p>
-                    <div class="xp-bar-container">
-                        <div class="xp-bar player-xp-bar"></div>
-                    </div>
-                    <p>Bank: <span id="player-bank">0</span> Gold</p>
-                    <p>Attack: <span id="player-attack">0</span></p>
-                    <p>Armor: <span id="player-armor">0</span></p>
-                    <p>Floor: <span id="player-floor-level">1</span></p>
-                </div>
-                <div id="player-floating-text" class="floating-text"></div>
-            </div>
-
-            <button id="roll-dice-btn" class="main-action-button">Roll Dice</button>
-
-            <div id="potionCountsContainer" class="potion-counts-container">
-                <p>Potion LV1: <span id="player-potion-1-count">0</span></p>
-                <p>Potion LV2: <span id="player-potion-2-count">0</span></p>
-                <p>Potion LV3: <span id="player-potion-3-count">0</span></p>
-            </div>
-            
-            <div id="combat-buttons" class="player-action-buttons" style="display: none;">
-                <button id="attack-btn" class="player-action-btn" disabled>Attack</button>
-                <button id="defend-btn" class="player-action-btn" disabled>Defend</button>
-                <button id="heal-btn" class="player-action-btn" disabled>Heal</button>
-            </div>
-            
-            <div id="healing-ui" class="healing-buttons-container" style="display: none;">
-                <button id="use-potion-1">Use LV1 Potion</button>
-                <button id="use-potion-2">Use LV2 Potion</button>
-                <button id="use-potion-3">Use LV3 Potion</button>
-            </div>
-
-            <div id="game-buttons" class="navigation-buttons section-frame">
-                <button id="go-mob-btn">Go Mob</button>
-                <button id="descend-level-btn">Descend Level</button>
-                <button id="ascend-level-btn">Ascend Level</button>
-                <button id="shop-btn">Enter Shop</button>
-            </div>
-
-            <div class="bottom-buttons-area">
-                <div class="spell-buttons section-frame">
-                    <button id="third-eye-btn">Third Eye</button>
-                    <button id="boost-spell-btn">Boost Spell</button>
-                </div>
+                <p>Név: <span id="mob-name"></span></p>
+                <p>Szint: <span id="mob-level"></span></p>
+                <p>HP: <span id="mob-current-hp"></span>/<span id="mob-max-hp"></span></p>
+                <p>Támadás: <span id="mob-base-attack"></span></p>
+                <p>Predikció: <span id="mob-predicted-action">???</span></p>
+                <p>XP jutalom: <span id="mob-xp-reward"></span></p>
+                <p>Arany jutalom: <span id="mob-coin-reward"></span></p>
             </div>
         </div>
 
-        <div class="game-log-container section-frame">
-            <h3>Game Log</h3>
-            <div id="player-log" class="game-log-content">
+        <div class="dice-display-container">
+            <div class="player-dice-display">
+                <h4>Játékos Dobásai:</h4>
+                <div id="player-dice-results" class="dice-results"></div>
+            </div>
+            <div class="mob-dice-display">
+                <h4>Mob Dobásai:</h4>
+                <div id="mob-dice-results" class="dice-results"></div>
             </div>
         </div>
-        
-        <div id="death-screen" class="death-screen-overlay" style="display: none;">
-            <div class="death-screen-content">
-                <h1>YOU DIED!</h1>
-                <p>A halál mély álomba merített.</p>
-                <button id="restart-game-btn">Restart Game</button>
+
+        <div id="game-buttons-container" class="game-buttons-container">
+            <button id="go-mob-button">Go Mob</button>
+            <button id="level-up-button">Szintet Lép</button>
+            <button id="ascend-button">Fel a toronyba</button>
+            <button id="descend-button">Le a toronyból</button>
+            <button id="shop-button">Bolt</button>
+            <button id="third-eye-button">Harmadik Szem (<span id="third-eye-cost"></span>G)</button>
+            <button id="boost-spell-button">Támadás Fókusz (<span id="boost-spell-cost"></span>G)</button>
+        </div>
+
+        <div id="combat-buttons-container" class="combat-buttons-container">
+            <div id="roll-button-container" class="button-group">
+                <button id="roll-button">Roll</button>
+            </div>
+
+            <div id="player-action-buttons-container" class="button-group" style="display: none;">
+                <button id="attack-button">Attack</button>
+                <button id="defend-button">Defend</button>
+                <button id="heal-button">Heal</button>
+            </div>
+
+            <div id="healing-ui-container" class="button-group" style="display: none;">
+                <button id="use-potion-1-button">LV1 Potion (<span id="potion-1-price"></span>G)</button>
+                <button id="use-potion-2-button">LV2 Potion (<span id="potion-2-price"></span>G)</button>
+                <button id="use-potion-3-button">LV3 Potion (<span id="potion-3-price"></span>G)</button>
+                <button id="cancel-healing-button">Cancel</button>
             </div>
         </div>
-    </div>
 
-    <div id="shop-modal" class="modal">
-        <div class="modal-content section-frame">
-            <span class="close-button" id="shop-exit-btn">&times;</span>
-            <h2>Shop</h2>
-            <div class="shop-items-container">
-                <div class="shop-item">
-                    <div class="lock-overlay" id="bronze-sword-lock"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
-                    <span>Bronze Sword</span>
-                    <button id="buy-bronze-sword" class="buy-item-btn">Buy (150 Gold)</button>
+        <div id="shop-modal" class="modal">
+            <div class="modal-content">
+                <h2>Bolt</h2>
+                <div id="shop-items-container" class="shop-items-container">
+                    </div>
+                <h3>Potions</h3>
+                <div class="potion-shop-buttons">
+                    <button id="buy-potion-1-button">LV1 Potion (<span id="shop-potion-1-price"></span>G)</button>
+                    <button id="buy-potion-2-button">LV2 Potion (<span id="shop-potion-2-price"></span>G)</button>
+                    <button id="buy-potion-3-button">LV3 Potion (<span id="shop-potion-3-price"></span>G)</button>
                 </div>
-                <div class="shop-item">
-                    <div class="lock-overlay" id="wooden-shield-lock"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
-                    <span>Wooden Shield</span>
-                    <button id="buy-wooden-shield" class="buy-item-btn">Buy (100 Gold)</button>
-                </div>
-                <div class="shop-item">
-                    <div class="lock-overlay" id="whetstone-lock"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
-                    <span>Whetstone</span>
-                    <button id="buy-whetstone" class="buy-item-btn">Buy (50 Gold)</button>
-                </div>
-                <div class="shop-item">
-                    <div class="lock-overlay" id="leather2-lock"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
-                    <span>Leather Vest 2</span>
-                    <button id="buy-leather2" class="buy-item-btn">Buy (200 Gold)</button>
-                </div>
-
-                <div class="shop-item">
-                    <span>Potion LV1</span>
-                    <button id="buy-potion-1" class="buy-potion-btn">Buy (<span id="potion-1-price">0 Gold</span>)</button>
-                </div>
-                <div class="shop-item">
-                    <span>Potion LV2</span>
-                    <button id="buy-potion-2" class="buy-potion-btn">Buy (<span id="potion-2-price">0 Gold</span>)</button>
-                </div>
-                <div class="shop-item">
-                    <span>Potion LV3</span>
-                    <button id="buy-potion-3" class="buy-potion-btn">Buy (<span id="potion-3-price">0 Gold</span>)</button>
-                </div>
+                <button id="exit-shop-button">Kilépés</button>
             </div>
-            <button id="shopResetButton">Reset Shop</button>
+        </div>
+
+        <div id="death-screen" class="modal">
+            <div class="modal-content">
+                <h2>Meghaltál!</h2>
+                <p>A szörnyek legyőztek. Újrakezdheted a kalandot.</p>
+                <button id="restart-game-button">Újrakezdés</button>
+            </div>
         </div>
     </div>
-    
-    <script type="module" src="main.js"></script>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
