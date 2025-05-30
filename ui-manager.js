@@ -141,8 +141,8 @@ export function displayMobPredictedAction(action) {
 export function resetFightDisplay() {
     displayPlayerDice([]); // Üres tömbbel reseteli
     displayMobDice([]); // Üres tömbel reseteli
-    document.getElementById('playerDamageDisplay').textContent = '';
-    document.getElementById('mobDamageDisplay').textContent = '';
+    //document.getElementById('playerDamageDisplay').textContent = '';
+    //document.getElementById('mobDamageDisplay').textContent = '';
     displayMobPredictedAction('???'); // Visszaállítjuk a mob akció előrejelzést
 }
 
