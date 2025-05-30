@@ -81,10 +81,10 @@ body {
 .combat-area {
     display: flex;
     justify-content: space-around;
-    align-items: flex-start; /* Kezdetben felülről igazítva */
+    align-items: flex-start;
     width: 100%;
     margin-top: 20px;
-    position: relative; /* Ahhoz, hogy a mob-action-prediction-container pozícionálható legyen hozzá képest */
+    position: relative; /* Fontos: Ez a konténer adja a referenciát az abszolút pozícionáláshoz */
 }
 
 .dice-area {
@@ -93,15 +93,12 @@ body {
 }
 
 .player-dice-area {
-    /* Specifikus stílusok a játékos dobókockáinak területére */
     position: relative; /* Hogy a lebegő szöveg pozícionálható legyen hozzá */
 }
 
 .mob-dice-area {
-    /* Specifikus stílusok a mob dobókockáinak területére */
     position: relative; /* Fontos! Hogy a mob-action-prediction-container abszolút pozícionálása ehhez viszonyuljon */
 }
-
 
 .dice-results {
     display: flex;
@@ -164,7 +161,6 @@ body {
     color: #2196F3; /* Kék (gyógyítást jelez) */
     border-color: #1976D2;
 }
-
 
 /* Buttons General */
 .buttons-container {
