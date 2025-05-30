@@ -1,19 +1,22 @@
 // main.js
 
-import { player, mob } from './game-state.js';
-import { updateUI, appendToLog, showFloatingText } from './ui-manager.js';
+// Csak az 'initGame' függvényt importáljuk a 'game-logic.js'-ből,
+// mivel ez felelős a játék teljes inicializálásáért.
+import { initGame } from './game-logic.js';
+// Az 'event-handlers.js' felel az eseményfigyelők beállításáért,
+// és ő maga importálja a szükséges függvényeket (pl. nextMob, handlePlayerAction).
 import { initializeEventListeners } from './event-handlers.js';
-import { nextMob, updatePlayerStats } from './game-logic.js'; // nextMob és updatePlayerStats importálása
+// Az 'ui-manager.js' 'updateUI' függvénye szükséges a kezdeti UI frissítéshez.
+import { updateUI } from './ui-manager.js';
+// Importáljuk a shop gombok frissítő függvényét is, ami a shop modal nyitásakor hívódik.
+import { updateShopButtons } from './event-handlers.js';
 
-// Játék inicializálása
-function initGame() {
-    appendToLog("Game starting...");
-    updatePlayerStats(); // Játékos statisztikák beállítása az aktuális szint alapján (pl. max HP, baseAttack)
-    nextMob(); // Első mob generálása
-    initializeEventListeners(); // Eseménykezelők inicializálása
-    updateUI(); // Kezdő UI frissítés
-    appendToLog("Game ready! Click 'Go Mob' to start a battle!");
-}
 
-// Játék indítása
-window.onload = initGame;
+// Játék inicializálása, miután a DOM teljesen betöltődött.
+// A 'DOMContentLoaded' a preferált esemény ehhez, nem a 'window.onload'.
+document.addEventListener('DOMContentLoaded', () => {
+    initGame();                  // Elindítja a játék logikáját (pl. játékos statok, első mob)
+    initializeEventListeners();  // Beállítja az összes UI eseményfigyelőt
+    updateUI();                  // Frissíti a játék kezdeti állapotát a UI-n
+    updateShopButtons();         // Frissíti a shop gombokat a kezdeti állapot alapján (pl. zárolások)
+});
