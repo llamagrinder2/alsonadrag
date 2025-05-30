@@ -44,7 +44,7 @@ body {
     box-sizing: border-box;
 }
 
-#player-log {
+#log-output { /* Megváltoztatva player-log-ról log-output-ra az index.html és ui-manager.js alapján */
     width: 100%;
     height: 100%; /* Kitölti a maradék helyet */
     background: transparent;
@@ -89,7 +89,6 @@ body {
 .mob-hp-bar { background-color: #dc3545; } /* Piros */
 .player-xp-bar { background-color: #ffc107; } /* Sárga */
 
-
 /* Mob Információ Blokkok */
 .mob-info-block {
     display: flex;
@@ -111,22 +110,19 @@ body {
     width: 100%;
 }
 
+/* DICE AND ACTION AREA */
+/* Ez a konténer magában foglalja a játékos dobásait, a mob akció predikcióját és a mob dobásait */
 .dice-and-action-area {
     display: flex;
-    justify-content: center; /* Kockák és akció ikon középre */
+    justify-content: center; /* Elekek középre igazítása vízszintesen */
     align-items: center;
     gap: 15px; /* Hely a kockák és az akció ikon között */
     width: 100%;
+    margin-top: 15px;
 }
 
-/* Kockák általános stílusa */
-.dice-results {
-    display: flex;
-    justify-content: center;
-    gap: 8px; /* Hely a kockák között */
-}
-
-.dice-result {
+/* Kockák általános stílusa a számoknak (amik span-ban vannak) */
+.dice-roll-number { /* EZ AZ ÚJ OSZTÁLY A KOCKADOBÁS SZÁMAIHOZ */
     width: 45px;
     height: 45px;
     border: 1px solid #555; /* Vékony keret */
@@ -138,17 +134,20 @@ body {
     font-weight: bold;
     border-radius: 5px; /* Enyhén lekerekített sarkok */
     box-shadow: 1px 1px 3px rgba(0,0,0,0.3); /* Finom árnyék */
+    color: #f0f0f0; /* Szöveg színe */
+}
+
+/* Konténerek a kockadobásoknak */
+#player-dice-results,
+#mob-dice-results {
+    display: flex;
+    justify-content: center;
+    gap: 8px; /* Hely a kockák között */
+    min-width: 50px; /* Hely, hogy elférjenek, ha még nincsenek kockák */
 }
 
 /* Mob akció előrejelzés: KÖR alakú, vastag kerettel */
-.mob-action-prediction-container {
-    display: flex; /* Kezeli a child elemet */
-    justify-content: center;
-    align-items: center;
-    /* Alapból rejtve van, a JS teszi láthatóvá */
-}
-
-.mob-action-icon {
+#mob-predicted-action { /* ID-re hivatkozunk, ahogy az index.html-ben van */
     width: 55px; /* Kicsit nagyobb, mint a kocka */
     height: 55px;
     border: 3px solid #777; /* Vastagabb keret */
@@ -156,24 +155,25 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 32px;
+    font-size: 28px; /* Betűméret a szöveghez */
     font-weight: bold;
     border-radius: 50%; /* Kör alak */
     box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
     color: #f0f0f0; /* Alapértelmezett fehér, a JS felülírja */
     transition: all 0.3s ease-in-out;
+    text-transform: uppercase; /* Mindig nagybetűvel */
 }
 
 /* Mob akció ikon színei */
-.mob-action-icon.attack {
+#mob-predicted-action.attack {
     color: #B30000; /* Sötétpiros támadásra */
     border-color: #800000;
 }
-.mob-action-icon.defend {
+#mob-predicted-action.defend {
     color: #28a745; /* Zöld védekezésre */
     border-color: #1e7e34;
 }
-.mob-action-icon.heal {
+#mob-predicted-action.heal {
     color: #17a2b8; /* Kék gyógyításra */
     border-color: #138496;
 }
@@ -218,29 +218,64 @@ button:disabled {
     box-shadow: none;
 }
 
+/* Fő játék gombok konténere (Go Mob, Level Up, Ascend, Descend, Shop, Spells) */
+#game-buttons-container {
+    display: flex; /* EZ FONTOS, HOGY LÁTHATÓ LEGYEN ÉS ELRENDEZZE A GOMBOKAT */
+    flex-wrap: wrap; /* Hogy sorba törjön, ha nem fér el */
+    gap: 10px; /* Hely a gombok között */
+    justify-content: center; /* Gombok középre igazítása */
+    margin-bottom: 20px; /* Hely az alatta lévő tartalomtól */
+}
+
+/* Harci gombok FŐ konténere (ez az egész harci UI-t tartalmazza: Roll, Player Actions, Healing UI) */
+#combat-buttons-container {
+    display: none; /* Alapértelmezetten rejtve, a JS teszi láthatóvá */
+    flex-direction: column; /* Egymás alatt legyenek a roll, attack/defend/heal, healing UI */
+    align-items: center; /* Középre igazítja a belső elemeket */
+    gap: 15px; /* Hely a belső szekciók között */
+    width: 100%; /* Kitölti a rendelkezésre álló szélességet */
+}
+
+/* Roll gomb konténer */
+#roll-button-container {
+    display: block; /* Alapértelmezetten block, a JS váltogatja */
+    width: 100%; /* Hogy a Roll gomb elférjen */
+    text-align: center; /* Roll gomb középre */
+}
+
+/* Player akció gombok konténer (Attack, Defend, Heal) */
+#player-action-buttons-container {
+    display: none; /* Alapértelmezetten rejtve, a JS teszi láthatóvá */
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap; /* Tördelje sorba, ha sok van */
+    width: 100%;
+}
+
+/* Gyógyítás UI konténer */
+#healing-ui-container {
+    display: none; /* Alapértelmezetten rejtve, a JS teszi láthatóvá */
+    flex-direction: column; /* Gombok egymás alatt */
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
 /* Speciális gombok */
-.main-action-button {
+.main-action-button { /* Pl. Roll gomb */
     font-size: 1.1em;
     padding: 15px 30px;
     min-width: 150px;
 }
 
-/* Harci akció gombok (Attack, Defend, Heal) */
-.player-action-buttons {
-    display: flex; /* Alapból rejtve, JS teszi láthatóvá */
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap; /* Tördelje sorba, ha sok van */
-    width: 100%;
-}
-
+/* Harci akció gombok (Attack, Defend, Heal) konkrét stílusa */
 .player-action-buttons button {
     min-width: 120px; /* Kicsit szélesebbek, mint a normál gombok */
 }
 
 /* Gyógyító gombok konténer */
-.healing-buttons-container {
-    display: flex;
+.healing-buttons-container { /* Kép alapján ez a shopban lévő poti gombok konténere */
+    display: flex; /* Fontos, hogy látható legyen és elrendezze a gombokat */
     justify-content: center;
     gap: 10px;
     margin-top: 10px;
@@ -257,8 +292,12 @@ button:disabled {
     margin-top: auto; /* Alulra igazítja a saját szekciójában */
 }
 
-/* Alsó gombok (Shop és Spells) */
-.bottom-buttons-area {
+/* Alsó gombok (Shop és Spells) - VALÓSZÍNŰLEG EZ A #game-buttons-container RÉSZE LETT */
+/* Ha különálló alsó szekció, akkor ez lehet a konténer.
+   A képen látható elrendezés alapján az összes fő gomb egy helyen van.
+   Ezért a .bottom-buttons-area és a .spell-buttons CSS-t felülvizsgáltam,
+   és inkább a #game-buttons-container-be integráltam a gombok elrendezését. */
+.bottom-buttons-area { /* Ha mégis van ilyen konténered a HTML-ben, akkor így néz ki */
     display: flex;
     justify-content: space-around;
     align-items: flex-end; /* A legaljára igazítja */
@@ -267,32 +306,49 @@ button:disabled {
     gap: 20px;
 }
 
-.spell-buttons {
+.spell-buttons { /* Ha a spellek gombjai külön div-ben vannak a #game-buttons-container-en belül */
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     justify-content: center;
-    flex: 1; /* Egyenlően osztja el a helyet a shop gombbal */
+    /* flex: 1; */ /* Ezt elhagyhatjuk, ha a #game-buttons-container kezeli a flex-et */
 }
 
-.shop-button {
+.shop-button { /* Ha a shop gomb külön div-ben van a #game-buttons-container-en belül */
     display: flex;
     justify-content: center;
-    flex: 1;
+    /* flex: 1; */ /* Ezt elhagyhatjuk */
 }
 
-#enterShopButton {
+#shop-button { /* Az "Bolt" gomb */
     background-color: #6F4E37; /* Barna Shop gomb */
     color: #FFD700; /* Arany szöveg */
     font-weight: bold;
 }
 
-#enterShopButton:hover:not(:disabled) {
+#shop-button:hover:not(:disabled) {
     background-color: #5A3E2C; /* Sötétebb barna hoverre */
 }
 
-/* Halál gomb */
-.death-button {
+/* Halál képernyő és gombja */
+#death-screen { /* ID-re hivatkozunk, nem csak osztályra */
+    display: none; /* Alapból rejtve van */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-size: 2em;
+    text-align: center;
+}
+
+#restart-game-button { /* A halál képernyőn lévő újraindító gomb ID-je */
     background-color: #343a40;
     color: white;
     font-size: 24px;
@@ -300,8 +356,8 @@ button:disabled {
     margin-top: 30px;
     border-radius: 10px;
     animation: pulse 1s infinite alternate;
-    position: absolute; /* Hogy a játék konténer felett legyen */
-    z-index: 1001;
+    /* position: absolute; - Ez nem kell, ha a death-screen flex */
+    /* z-index: 1001; - Ez sem kell, ha a death-screen z-index 1000 */
 }
 
 @keyframes pulse {
@@ -396,7 +452,7 @@ button:disabled {
     color: #f0f0f0;
 }
 
-.buy-item-btn, .buy-potion-btn {
+.buy-item-btn, .buy-potion-btn { /* Ezeket feltehetően a shop.js generálja */
     background-color: #007bff; /* Egységes gomb szín */
     color: white;
     padding: 8px 15px;
@@ -410,6 +466,8 @@ button:disabled {
 .buy-item-btn:hover:not(:disabled), .buy-potion-btn:hover:not(:disabled) {
     background-color: #0056b3;
 }
+
+/* Potion Counts Container (a harci UI-ban) */
 .potion-counts-container {
     display: flex; /* Eredetileg none, JS kapcsolja be */
     flex-direction: column; /* Egymás alatt */
@@ -455,22 +513,6 @@ button:disabled {
 #shopResetButton:hover {
     background-color: #d32f2f;
 }
-
-/* A span elemek, amik a dobás eredményét mutatják - ezekre vonatkozzon a kocka stílus */
-#player-dice-display,
-#mob-dice-display {
-    width: 45px; /* A korábbi .dice-result-ből */
-    height: 45px; /* A korábbi .dice-result-ből */
-    border: 1px solid #555; /* A korábbi .dice-result-ből */
-    background-color: #444; /* Sötétebb háttér a kockáknak */
-    display: flex; /* Hogy a szám középen legyen */
-    justify-content: center;
-    align-items: center;
-    font-size: 28px; /* Nagyobb betűméret a számhoz */
-    font-weight: bold;
-    border-radius: 5px;
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-    color: #f0f0f0; /* Szöveg színe */
 
 .lock-overlay {
     position: absolute;
