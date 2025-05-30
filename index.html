@@ -8,85 +8,80 @@
 </head>
 <body>
     <div class="game-container">
-        <div class="combat-info">
-            <div class="player-info">
-                <img src="https://via.placeholder.com/50x50?text=P" alt="Player Avatar" class="avatar">
-                <div class="stats">
-                    <p>Level: <span id="playerLevel">1</span></p>
-                    <p>HP: <span id="playerCurrentHp">100</span>/<span id="playerMaxHp">100</span></p>
-                    <div class="hp-bar-container">
-                        <div class="hp-bar player-hp-bar"></div>
-                    </div>
-                    <p>XP: <span id="playerExp">0</span>/<span id="playerNextLevelExp">100</span></p>
-                    <p>Bank: <span id="bankAmount">0</span> Gold</p>
-                </div>
-            </div>
-            
-            <div class="mob-info">
-                <img src="https://via.placeholder.com/50x50?text=M" alt="Mob Image" class="avatar">
-                <div class="stats">
-                    <p>Name: <span id="mobName">Goblin</span></p>
-                    <p>Level: <span id="mobLevel">1</span></p>
+        <div class="main-content-area">
+            <div class="mob-info-block section-frame">
+                <img src="https://via.placeholder.com/100x100?text=Mob" alt="Mob Image" class="mob-avatar">
+                <div class="hp-info">
+                    <p>Name: <span id="mobName">Goblin</span> (LV<span id="mobLevel">1</span>)</p>
                     <p>HP: <span id="mobCurrentHp">50</span>/<span id="mobMaxHp">50</span></p>
                     <div class="hp-bar-container">
                         <div class="hp-bar mob-hp-bar"></div>
                     </div>
                 </div>
+                <div class="dice-and-action-area">
+                    <div class="dice-results mob-dice-results">
+                        <div class="dice-result" id="mobRollResult1"></div>
+                        <div class="dice-result" id="mobRollResult2"></div>
+                        <div class="dice-result" id="mobRollResult3"></div>
+                        <div class="dice-result" id="mobRollResult4"></div>
+                    </div>
+                    <div class="mob-action-prediction-container" style="display: none;">
+                        <span id="mobPredictedAction" class="mob-action-icon">???</span>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="combat-area">
-            <div class="player-dice-area dice-area">
-                <h3>Your Dice:</h3>
-                <div class="dice-results">
+            <div class="player-info-block section-frame">
+                <div class="dice-results player-dice-results">
                     <div class="dice-result" id="playerRollResult1"></div>
                     <div class="dice-result" id="playerRollResult2"></div>
+                </div>
+                
+                <div class="hp-info">
+                    <p>HP: <span id="playerCurrentHp">100</span>/<span id="playerMaxHp">100</span></p>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar player-hp-bar"></div>
                     </div>
-            </div>
-
-            <div class="mob-dice-area dice-area">
-                <h3>Mob Dice:</h3>
-                <div class="dice-results mob-dice-results">
-                    <div class="dice-result" id="mobRollResult1"></div>
-                    <div class="dice-result" id="mobRollResult2"></div>
-                    <div class="dice-result" id="mobRollResult3"></div>
-                    <div class="dice-result" id="mobRollResult4"></div>
                 </div>
-                <div class="mob-action-prediction-container">
-                    <span id="mobPredictedAction" class="mob-action-icon">???</span>
-                </div>
-            </div>
-        </div>
 
-        <div class="buttons-container">
-            <div class="combat-buttons">
-                <button id="rollButton">Roll</button>
-                <div class="player-action-buttons">
+                <div class="xp-info">
+                    <p>Level: <span id="playerLevel">1</span></p>
+                    <p>XP: <span id="playerExp">0</span>/<span id="playerNextLevelExp">100</span></p>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar player-xp-bar"></div>
+                    </div>
+                    <p>Bank: <span id="bankAmount">0</span> Gold</p>
+                </div>
+
+                <button id="rollButton" class="main-action-button">Roll</button>
+
+                <div class="player-action-buttons" style="display: none;">
                     <button id="attackActionButton">Attack</button>
                     <button id="defendActionButton">Defend</button>
                     <button id="healActionButton">Heal</button>
                 </div>
+                
+                <div id="healingButtonsContainer" class="healing-buttons-container"></div>
             </div>
-            
-            <div class="navigation-buttons">
+
+            <div class="navigation-buttons section-frame">
                 <button id="goMobButton">Go Mob</button>
                 <button id="descendLevelButton">Descend Level</button>
                 <button id="ascendLevelButton">Ascend Level</button>
             </div>
-            
-            <div class="spell-buttons">
-                <button id="thirdEyeButton">Third Eye</button>
-                <button id="boostSpellButton">Boost Spell</button>
-            </div>
 
-            <div class="shop-button">
-                <button id="enterShopButton">Enter Shop</button>
+            <div class="bottom-buttons-area">
+                <div class="spell-buttons section-frame">
+                    <button id="thirdEyeButton">Third Eye</button>
+                    <button id="boostSpellButton">Boost Spell</button>
+                </div>
+                <div class="shop-button section-frame">
+                    <button id="enterShopButton">Enter Shop</button>
+                </div>
             </div>
         </div>
 
-        <div id="healingButtonsContainer" class="healing-buttons-container"></div>
-
-        <div class="game-log-container">
+        <div class="game-log-container section-frame">
             <h3>Game Log</h3>
             <textarea id="gameLog" readonly></textarea>
         </div>
@@ -95,27 +90,27 @@
     </div>
 
     <div id="shopModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content section-frame">
             <span class="close-button">&times;</span>
             <h2>Shop</h2>
             <div class="shop-items-container">
                 <div class="shop-item">
-                    <div class="lock-overlay" id="lock1"><img src="locked-icon.png" alt="Locked"></div>
+                    <div class="lock-overlay" id="lock1"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
                     <span>Dagger</span>
                     <button class="buy-item-btn" data-item="dagger">Buy (100 Gold)</button>
                 </div>
                 <div class="shop-item">
-                    <div class="lock-overlay" id="lock2"><img src="locked-icon.png" alt="Locked"></div>
+                    <div class="lock-overlay" id="lock2"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
                     <span>Leather Vest</span>
                     <button class="buy-item-btn" data-item="leatherVest">Buy (150 Gold)</button>
                 </div>
                 <div class="shop-item">
-                    <div class="lock-overlay" id="lock3"><img src="locked-icon.png" alt="Locked"></div>
+                    <div class="lock-overlay" id="lock3"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
                     <span>Whetstone</span>
                     <button class="buy-item-btn" data-item="whetstone">Buy (50 Gold)</button>
                 </div>
                 <div class="shop-item">
-                    <div class="lock-overlay" id="lock4"><img src="locked-icon.png" alt="Locked"></div>
+                    <div class="lock-overlay" id="lock4"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
                     <span>Leather Vest 2</span>
                     <button class="buy-item-btn" data-item="leather2">Buy (200 Gold)</button>
                 </div>
