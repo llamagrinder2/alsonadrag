@@ -410,6 +410,32 @@ button:disabled {
 .buy-item-btn:hover:not(:disabled), .buy-potion-btn:hover:not(:disabled) {
     background-color: #0056b3;
 }
+.potion-counts-container {
+    display: flex; /* Eredetileg none, JS kapcsolja be */
+    flex-direction: column; /* Egymás alatt */
+    gap: 5px; /* Hely a poti sorok között */
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #3a3a3a; /* Kicsit világosabb háttér */
+    border-radius: 8px;
+    border: 1px solid #4a4a4a;
+    width: fit-content; /* Alkalmazkodik a tartalomhoz */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.potion-counts-container p {
+    margin: 0;
+    font-size: 0.95em;
+    color: #c0c0c0; /* Világosabb szöveg */
+    text-align: center;
+}
+
+.potion-counts-container span {
+    font-weight: bold;
+    color: #ffffff; /* Fehér számok */
+    margin-left: 5px; /* Kicsi hely a label és a szám között */
+}
 
 .shop-item button:disabled {
     background-color: #6c757d;
