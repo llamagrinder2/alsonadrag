@@ -106,6 +106,10 @@ export function togglePlayerActionButtons(enable) {
     });
 }
 
+export function toggleRollButton(enable) { // <--- ELLENŐRIZD, HOGY ITT VAN-E AZ 'export'
+    rollDiceButton.disabled = !enable;
+}
+
 // Harci gombok (combat-buttons container) megjelenítése/elrejtése
 export function hideAllCombatButtons(hide) {
     combatButtons.style.display = hide ? 'none' : 'block';
