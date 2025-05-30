@@ -1,6 +1,6 @@
 // event-handlers.js
 
-import { performAttack, nextMob, prevMob, updatePlayerStats, checkPlayerLVUp, rollDiceAndPredictMobAction, playerAction } from './game-logic.js'; // rollDiceAndPredictMobAction és playerAction importálva
+import { nextMob, prevMob, updatePlayerStats, checkPlayerLVUp, rollDiceAndPredictMobAction, playerAction } from './game-logic.js'; // rollDiceAndPredictMobAction és playerAction importálva
 import { updateUI, appendToLog, toggleGameButtons, togglePlayerActionButtons, hideAllCombatButtons } from './ui-manager.js';
 import { createHealingButtons, buyPotion, usePotion, cancelHealing } from './healing.js';
 import { activateThirdEye, activateBoostSpell } from './spells.js';
