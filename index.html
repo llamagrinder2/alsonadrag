@@ -38,6 +38,10 @@
                 </div>
 
                 <div id="healingButtonsContainer"></div>
+
+                <div class="mob-action-prediction">
+                    Mob will: <span id="mobPredictedAction">???</span>
+                </div>
             </div>
 
             <div class="center-panel">
@@ -53,14 +57,31 @@
                 </div>
 
                 <div class="roll-section">
-                    <button id="rollButton">Roll</button>
-                    <div class="roll-results">
-                        <div class="roll-display">You: <span id="playerRollResult">0</span></div>
-                        <div class="roll-display">Mob: <span id="mobRollResult">0</span></div>
+                    <div class="mob-dice-display">
+                        Mob Dice:
+                        <span class="dice-result" id="mobRollResult1">0</span>
+                        <span class="dice-result" id="mobRollResult2">0</span>
+                        <span class="dice-result" id="mobRollResult3">0</span>
+                        <span class="dice-result" id="mobRollResult4">0</span>
                     </div>
+
+                    <button id="rollButton">Roll</button>
+
+                    <div class="player-dice-display">
+                        Your Dice:
+                        <span class="dice-result" id="playerRollResult1">0</span>
+                        <span class="dice-result" id="playerRollResult2">0</span>
+                    </div>
+                    
                     <div class="damage-display">
                         <span id="playerDamageDisplay"></span>
                         <span id="mobDamageDisplay"></span>
+                    </div>
+
+                    <div class="player-action-buttons">
+                        <button id="attackActionButton">Attack</button>
+                        <button id="defendActionButton">Defend</button>
+                        <button id="healActionButton">Heal</button>
                     </div>
                 </div>
 
