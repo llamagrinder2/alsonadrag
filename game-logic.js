@@ -1,8 +1,8 @@
 // game-logic.js
 
 import { player, mob, gameModifiers } from './game-state.js';
-import { updateUI, appendToLog, showFloatingText, resetFightDisplay, toggleGameButtons } from './ui-manager.js';
-import { bossCountUpdate, bossButton, bossSummon } from './boss-logic.js';
+import { updateUI, appendToLog, showFloatingText, resetFightDisplay, toggleGameButtons, displayMobPredictedAction, displayPlayerDice, displayMobDice, togglePlayerActionButtons, hideAllCombatButtons } from './ui-manager.js';
+import { bossCountUpdate, bossButton, bossSummon, handleBossDefeat } from './boss-logic.js'; // handleBossDefeat importálva
 import { createHealingButtons, usePotion, cancelHealing } from './healing.js';
 import { endThirdEye } from './spells.js';
 
@@ -12,10 +12,8 @@ export function calculateValue(n, Y_value, Z_min_or_fixed, Z_max = null) {
     const X = gameModifiers.MAX_LEVEL;
     const denominator = X - Y_value;
 
-    // Hibakezelés, ha a nevező nulla vagy negatív lenne
-    if (denominator <= 0) {
-        console.error(`Hiba: A képlet nevezője nulla vagy negatív! (n=${n}, Y=${Y_value}, X=${X})`);
-        // Visszaad egy alapértéket hibás esetben, pl. n * Z_min_or_fixed, vagy 1
+    if (denominator === 0) {
+        console.error(`Hiba: A képlet nevezője nulla! (n=${n}, Y=${Y_value}) Ellenőrizze az X és Y értékeket.`);
         return Math.max(1, n * (Z_min_or_fixed || 1));
     }
 
@@ -32,222 +30,298 @@ export function calculateValue(n, Y_value, Z_min_or_fixed, Z_max = null) {
         finalValue = baseValue * Z_min_or_fixed;
     }
 
-    // A HP és sebzés értékeket általában felfelé kerekítjük, XP-nél, Goldnál is érdemes
     return Math.max(1, Math.ceil(finalValue)); // Legalább 1 legyen, felfelé kerekítve
 }
 
-
-// Kockadobás (ez valószínűleg egy alap mechanika, nem függ a képlettől)
-export function diceRoll() {
-    return Math.floor(Math.random() * gameModifiers.mod1) + 1;
+// Több kocka dobása
+export function rollDice(numberOfDice) {
+    const rolls = [];
+    for (let i = 0; i < numberOfDice; i++) {
+        rolls.push(Math.floor(Math.random() * gameModifiers.DICE_MAX_VALUE) + 1);
+    }
+    return rolls;
 }
 
-// Sebzés számítása (átalakítva az új statokhoz)
+// Dobások összegzése
+function calculateTotalRoll(rolls) {
+    return rolls.reduce((sum, current) => sum + current, 0);
+}
+
+// Mob akciójának véletlenszerű kiválasztása
+function chooseMobAction() {
+    const rand = Math.random() * 100; // 0-99 közötti szám
+    let cumulativeChance = 0;
+
+    for (const action in mob.actionChances) {
+        cumulativeChance += mob.actionChances[action];
+        if (rand < cumulativeChance) {
+            return action;
+        }
+    }
+    return 'attack'; // Alapértelmezett, ha valamiért nem esik bele egyikbe sem
+}
+
+// Sebzés számítása
 export function calculateDamage(attackerAttack, defenderArmor) {
     const rawDamage = attackerAttack - defenderArmor;
     return Math.max(1, rawDamage); // Minimum 1 sebzés
 }
 
-// Támadás logikája
-export function performAttack() {
-    toggleGameButtons(false); // Gombok letiltása a támadás alatt
-    appendToLog("You rolled the dice...");
+// === ÚJ HARC MENET LOGIKA ===
 
-    const playerRoll = diceRoll();
-    const mobRoll = diceRoll();
+// A Roll gomb funkciója: dob és előrejelzi a mob akcióját
+export function rollDiceAndPredictMobAction() {
+    appendToLog("You roll the dice...");
+    
+    // Dobások végrehajtása
+    player.lastRollResults = rollDice(player.diceCount);
+    mob.lastRollResults = rollDice(mob.diceCount);
 
-    document.getElementById('playerRollResult').textContent = playerRoll;
-    document.getElementById('mobRollResult').textContent = mobRoll;
+    // Eredmények kijelzése a UI-on
+    displayPlayerDice(player.lastRollResults);
+    displayMobDice(mob.lastRollResults);
 
+    // Mob akciójának előrejelzése
+    mob.predictedAction = chooseMobAction();
+    displayMobPredictedAction(mob.predictedAction);
+    appendToLog(`The ${mob.name} intends to ${mob.predictedAction.toUpperCase()}!`);
+
+    // Gombok állapotának kezelése
+    // Roll gomb letiltása, akció gombok engedélyezése
+    document.getElementById('rollButton').disabled = true;
+    togglePlayerActionButtons(true);
+    hideAllCombatButtons(true); // Elrejti az egyéb gombokat harc közben
+}
+
+// Játékos akció választása és a harci kör végrehajtása
+export function playerAction(actionType) {
+    player.currentAction = actionType; // Tároljuk a játékos választását
+
+    appendToLog(`You chose to ${player.currentAction.toUpperCase()}.`);
+
+    // A tényleges harci logika
+    executeCombatRound(player.currentAction, mob.predictedAction);
+
+    // Gombok állapotának visszaállítása a kör után
+    document.getElementById('rollButton').disabled = false; // Roll gomb újra engedélyezése
+    togglePlayerActionButtons(false); // Játékos akció gombok letiltása
+    hideAllCombatButtons(false); // Visszaállítja a combaton kívüli gombokat
+}
+
+
+// A tényleges harci kör logikája
+function executeCombatRound(playerAction, mobAction) {
     let playerDamageDealt = 0;
     let mobDamageDealt = 0;
+    let playerHealAmount = 0;
+    let mobHealAmount = 0;
 
-    if (playerRoll >= mobRoll) {
-        // Játékos támad
-        playerDamageDealt = calculateDamage(player.baseAttack * player.attackMultiplier, mob.armor);
-        mob.currentHp -= playerDamageDealt;
-        showFloatingText(document.getElementById('mobCurrentHp').parentElement, `-${playerDamageDealt}`, 'red');
-        appendToLog(`You hit the ${mob.name} for ${playerDamageDealt} damage!`);
-    } else {
-        // Mob támad
-        mobDamageDealt = calculateDamage(mob.baseAttack, player.armor);
-        player.currentHp -= mobDamageDealt;
-        showFloatingText(document.getElementById('playerCurrentHp').parentElement, `-${mobDamageDealt}`, 'red');
-        appendToLog(`The ${mob.name} hit you for ${mobDamageDealt} damage!`);
+    // Dobások összegzése
+    const playerTotalRoll = calculateTotalRoll(player.lastRollResults);
+    const mobTotalRoll = calculateTotalRoll(mob.lastRollResults);
+
+    appendToLog(`Your total roll: ${playerTotalRoll}. ${mob.name}'s total roll: ${mobTotalRoll}.`);
+
+    // --- Akciók feldolgozása ---
+
+    // 1. Játékos akciója
+    if (playerAction === 'attack') {
+        const basePlayerDamage = player.baseAttack * player.attackMultiplier;
+        playerDamageDealt = calculateDamage(basePlayerDamage, mob.armor);
+    } else if (playerAction === 'defend') {
+        // Védekezés: csökkenti a bejövő sebzést
+        appendToLog("You brace for impact, preparing to defend!");
+        // A védekezési logika a mob támadásánál érvényesül
+    } else if (playerAction === 'heal') {
+        // Gyógyítás: játékos gyógyul
+        if (player.potions[1] > 0) { // Ellenőrizzük, van-e 1-es poti
+            usePotion(1); // Automatikusan 1-es potit használ
+        } else {
+            // Ha nincs poti, akkor valami alap gyógyulás, vagy nem gyógyul
+            playerHealAmount = gameModifiers.HEAL_BASE_AMOUNT;
+            player.currentHp += playerHealAmount;
+            if (player.currentHp > player.maxHp) player.currentHp = player.maxHp;
+            showFloatingText(document.getElementById('playerCurrentHp').parentElement, `+${playerHealAmount}`, 'green');
+            appendToLog(`You attempted to heal and recovered ${playerHealAmount} HP.`);
+        }
     }
 
-    updateUI();
+    // 2. Mob akciója
+    if (mobAction === 'attack') {
+        const baseMobDamage = mob.baseAttack;
+        // Ha a játékos védekezett, csökkentjük a bejövő sebzést
+        if (playerAction === 'defend') {
+            mobDamageDealt = calculateDamage(baseMobDamage * gameModifiers.DEFEND_DAMAGE_REDUCTION_PERCENT, player.armor);
+            appendToLog(`Your defense reduced the ${mob.name}'s attack!`);
+        } else {
+            mobDamageDealt = calculateDamage(baseMobDamage, player.armor);
+        }
+    } else if (mobAction === 'defend') {
+        // Mob védekezés: játékos sebzése csökken
+        appendToLog(`The ${mob.name} takes a defensive stance!`);
+        playerDamageDealt *= gameModifiers.DEFEND_DAMAGE_REDUCTION_PERCENT; // Játékos sebzése csökken
+        playerDamageDealt = Math.max(1, Math.ceil(playerDamageDealt)); // Minimum 1 sebzés
+    } else if (mobAction === 'heal') {
+        // Mob gyógyul
+        mobHealAmount = Math.ceil(mob.maxHp * 0.1); // Mob max HP 10%-át gyógyul
+        mob.currentHp += mobHealAmount;
+        if (mob.currentHp > mob.maxHp) {
+            mob.currentHp = mob.maxHp;
+        }
+        showFloatingText(document.getElementById('mobCurrentHp').parentElement, `+${mobHealAmount}`, 'green');
+        appendToLog(`The ${mob.name} healed for ${mobHealAmount} HP.`);
+    }
 
-    // Várakozás, majd ellenőrzés
+    // --- Sebzés/Gyógyítás alkalmazása a tényleges támadások esetén ---
+
+    // Játékos sebzi a mobot (ha a játékos támadott, ÉS a mob nem védekezett, vagy védekezett de még így is üt)
+    if (playerAction === 'attack') {
+        mob.currentHp -= playerDamageDealt;
+        showFloatingText(document.getElementById('mobCurrentHp').parentElement, `-${playerDamageDealt}`, 'red');
+        appendToLog(`You dealt ${playerDamageDealt} damage to the ${mob.name}!`);
+    }
+
+    // Mob sebzi a játékost (ha a mob támadott, ÉS a játékos nem védekezett, vagy védekezett de még így is üt)
+    if (mobAction === 'attack') {
+        player.currentHp -= mobDamageDealt;
+        showFloatingText(document.getElementById('playerCurrentHp').parentElement, `-${mobDamageDealt}`, 'red');
+        appendToLog(`The ${mob.name} dealt ${mobDamageDealt} damage to you!`);
+    }
+
+    updateUI(); // UI frissítése
+
+    // Várakozás, majd állapotellenőrzés
     setTimeout(() => {
         if (mob.currentHp <= 0) {
-            mob.currentHp = 0; // Biztosítsuk, hogy ne legyen negatív
+            mob.currentHp = 0;
             appendToLog(`You defeated the ${mob.name}!`);
             handleMobDefeat();
         } else if (player.currentHp <= 0) {
-            player.currentHp = 0; // Biztosítsuk, hogy ne legyen negatív
+            player.currentHp = 0;
             appendToLog("You have been defeated!");
             death();
         } else {
-            toggleGameButtons(true); // Gombok újra engedélyezése, ha a harc folytatódik
+            // Harc folytatódik, vissza a Roll gombhoz
         }
-    }, 1000); // Késleltetés a lebegő szöveg megjelenéséhez
+        displayMobPredictedAction('???'); // Visszaállítjuk a kérdőjeleket
+    }, 1000); // Késleltetés
 }
+
 
 // Mob legyőzésének kezelése (XP és Gold kiosztás)
 function handleMobDefeat() {
-    // XP jutalom számítása a mob HP-jához igazodva (PDF alapján)
-    // Meg kell győződni arról, hogy mob.maxMobHpCalculated - mob.minMobHpCalculated ne legyen nulla
     const hpRange = mob.maxMobHpCalculated - mob.minMobHpCalculated;
     const xpRange = mob.maxMobXpCalculated - mob.minMobXpCalculated;
 
     let actualXPReward;
     if (hpRange === 0) {
-        // Ha a HP tartomány nulla, akkor csak a minimum XP-t adjuk
         actualXPReward = mob.minMobXpCalculated;
     } else {
         const deltaXP = xpRange / hpRange;
-        // A mob.currentHp itt a mob generálásakor kisorsolt tényleges mob.maxHp-t reprezentálja.
-        // Ezt használjuk az XP skálázásához.
-        const actualMobHpRelativeToMin = mob.maxHp - mob.minMobHpCalculated; 
+        const actualMobHpRelativeToMin = mob.maxHp - mob.minMobHpCalculated;
         actualXPReward = mob.minMobXpCalculated + (actualMobHpRelativeToMin * deltaXP);
     }
     
-    player.currentExp += Math.ceil(actualXPReward); // XP hozzáadása, felkerekítve
+    player.currentExp += Math.ceil(actualXPReward);
 
-    // Gold jutalom
     player.bank += mob.coinReward;
 
     appendToLog(`You gained ${Math.ceil(actualXPReward)} XP and ${mob.coinReward} Gold.`);
     updateUI();
-    checkPlayerLVUp(); // Szintlépés ellenőrzése
-    bossCountUpdate(); // Boss számláló frissítése
+    checkPlayerLVUp();
+    bossCountUpdate();
 
-    endThirdEye(); // Harmadik szem spell befejezése (ha aktív volt)
-    
-    // Healing gombok elrejtése a harc végeztével
-    cancelHealing(); 
+    endThirdEye();
+    cancelHealing(); // Healing gombok elrejtése
+
+    // Visszaállítja a Roll gombot a normál működésre, és engedélyezi a Go Mob gombot
+    document.getElementById('rollButton').textContent = "Roll";
+    document.getElementById('rollButton').onclick = rollDiceAndPredictMobAction; // Visszaállítjuk az alap funkciót
+    document.getElementById('goMobButton').disabled = false; // "Go Mob" újra engedélyezése
+
+    // Ha a mob legyőzése után a boss jön, akkor a boss-logic kezeli a továbbiakat.
+    // Ha nem boss jön, akkor a felhasználó a 'Go Mob' gombbal tud új mobot generálni.
 }
 
-// Új mob generálása
 export function nextMob() {
-    // Mob szint beállítása (általában a játékos szintje)
     mob.level = player.level;
 
-    // Mob HP számítása és tárolása a skálázáshoz
     mob.minMobHpCalculated = calculateValue(
-        mob.level,
-        gameModifiers.MOB_HP_Y,
-        gameModifiers.MOB_HP_Z_MIN,
-        null // Ezt a calculateValue kezeli úgy, hogy fix Z-t használ a Z_min_or_fixed paraméterrel
+        mob.level, gameModifiers.MOB_HP_Y, gameModifiers.MOB_HP_Z_MIN, null
     );
     mob.maxMobHpCalculated = calculateValue(
-        mob.level,
-        gameModifiers.MOB_HP_Y,
-        gameModifiers.MOB_HP_Z_MAX,
-        null // Hasonlóan, itt is fix Z-t használ
+        mob.level, gameModifiers.MOB_HP_Y, gameModifiers.MOB_HP_Z_MAX, null
     );
-    // Véletlenszerűen kisorsoljuk a mob aktuális HP-ját a min és max között
     mob.maxHp = Math.ceil(Math.random() * (mob.maxMobHpCalculated - mob.minMobHpCalculated) + mob.minMobHpCalculated);
-    mob.currentHp = mob.maxHp; // A mob életereje induláskor tele van
+    mob.currentHp = mob.maxHp;
 
-
-    // Mob sebzés számítása
     mob.baseAttack = calculateValue(
-        mob.level,
-        gameModifiers.MOB_DAMAGE_Y,
-        gameModifiers.MOB_DAMAGE_Z_MIN,
-        gameModifiers.MOB_DAMAGE_Z_MAX
+        mob.level, gameModifiers.MOB_DAMAGE_Y, gameModifiers.MOB_DAMAGE_Z_MIN, gameModifiers.MOB_DAMAGE_Z_MAX
     );
+    mob.armor = 0; // Mob armor, ha van
 
-    // Mob XP jutalom alapértékeinek számítása a skálázáshoz
     mob.minMobXpCalculated = calculateValue(
-        mob.level,
-        gameModifiers.MOB_XP_Y,
-        gameModifiers.MOB_XP_Z_MIN,
-        null
+        mob.level, gameModifiers.MOB_XP_Y, gameModifiers.MOB_XP_Z_MIN, null
     );
     mob.maxMobXpCalculated = calculateValue(
-        mob.level,
-        gameModifiers.MOB_XP_Y,
-        gameModifiers.MOB_XP_Z_MAX,
-        null
+        mob.level, gameModifiers.MOB_XP_Y, gameModifiers.MOB_XP_Z_MAX, null
     );
-    // A mob.xpReward-ot majd a handleMobDefeat-ben számoljuk ki a tényleges mob HP alapján
-
-    // Mob Gold jutalom számítása (min és max)
+    
     const minGold = calculateValue(mob.level, gameModifiers.GOLD_DROP_MIN_Y, gameModifiers.GOLD_DROP_MIN_Z);
     const maxGold = calculateValue(mob.level, gameModifiers.GOLD_DROP_MAX_Y, gameModifiers.GOLD_DROP_MAX_Z);
-    // Véletlenszerűen választunk a min és max között
     mob.coinReward = Math.ceil(Math.random() * (maxGold - minGold) + minGold);
 
 
-    appendToLog(`A new ${mob.name} (LV${mob.level}) appeared! HP: ${mob.maxHp}, DMG: ${mob.baseAttack}, XP: ${mob.minMobXpCalculated}-${mob.maxMobXpCalculated}, Gold: ${minGold}-${maxGold}`); // Log frissítése részletesebben
-    resetFightDisplay();
+    appendToLog(`A new ${mob.name} (LV${mob.level}) appeared! HP: ${mob.maxHp}, DMG: ${mob.baseAttack}, XP: ${mob.minMobXpCalculated}-${mob.maxMobXpCalculated}, Gold: ${minGold}-${maxGold}`);
+    resetFightDisplay(); // Reseteli a dobás eredményeket
     updateUI();
+    displayMobPredictedAction('???'); // Visszaállítjuk a mob akció előrejelzését
 }
 
-// Előző mob generálása (szint csökkentése)
 export function prevMob() {
     if (player.level > 1) {
         player.level--;
-        nextMob(); // Új mob generálása az új szinten
+        nextMob();
         appendToLog(`You descended to Level ${player.level}. A new ${mob.name} appeared!`);
     } else {
         appendToLog("Cannot descend below Level 1.");
     }
 }
 
-// Játékos statisztikáinak frissítése (szintlépéskor és játék indításakor hívjuk)
 export function updatePlayerStats() {
-    // Játékos HP (még nincsenek paraméterek, de az univerzális képlet szerint kell majd)
-    // Ha majd megadod a PLAYER_HP_Y és Z értékeket, akkor így fog kinézni:
-    // player.maxHp = calculateValue(player.level, gameModifiers.PLAYER_HP_Y, gameModifiers.PLAYER_HP_Z);
-    
-    // IDEIGLENES Játékos HP, amíg nem kapok paramétereket hozzá
-    player.maxHp = 100 + (player.level - 1) * 10;
-    // Biztosítsuk, hogy a currentHp ne legyen nagyobb a maxHp-nál szintlépéskor
+    player.maxHp = gameModifiers.PLAYER_HP_BASE + (player.level - 1) * gameModifiers.PLAYER_HP_PER_LEVEL;
     player.currentHp = Math.min(player.currentHp, player.maxHp);
-    if (player.currentHp === 0 || player.currentHp === undefined || isNaN(player.currentHp)) { // Első betöltéskor 0, ha nincs mentett adat, vagy NaN
+    if (player.currentHp === 0 || player.currentHp === undefined || isNaN(player.currentHp)) {
         player.currentHp = player.maxHp;
     }
 
-    // Játékos támadás (PDF alapján)
     player.baseAttack = calculateValue(
-        player.level,
-        gameModifiers.PLAYER_DAMAGE_Y,
-        gameModifiers.PLAYER_DAMAGE_Z_MIN,
-        gameModifiers.PLAYER_DAMAGE_Z_MAX
+        player.level, gameModifiers.PLAYER_DAMAGE_Y, gameModifiers.PLAYER_DAMAGE_Z_MIN, gameModifiers.PLAYER_DAMAGE_Z_MAX
     );
 
-    // Szükséges XP a következő szintlépéshez (PDF alapján)
     player.expToNextLevel = calculateValue(
-        player.level,
-        gameModifiers.PLAYER_LVL_UP_EXP_Y,
-        gameModifiers.PLAYER_LVL_UP_EXP_Z
+        player.level, gameModifiers.PLAYER_LVL_UP_EXP_Y, gameModifiers.PLAYER_LVL_UP_EXP_Z
     );
-    
-    // ... további játékos statisztikák (pl. Armor, HealStat, ha szinttől függnek) ...
 }
 
-// Szintlépés ellenőrzése
 export function checkPlayerLVUp() {
-    // Frissítjük a szükséges XP-t, mert az függ a szinttől.
-    updatePlayerStats(); // Ezt hívjuk meg előbb, hogy az expToNextLevel frissüljön
+    updatePlayerStats();
     
     if (player.currentExp >= player.expToNextLevel) {
         player.level++;
-        player.currentExp -= player.expToNextLevel; // Fennmaradó XP
+        player.currentExp -= player.expToNextLevel;
 
         appendToLog(`Congratulations! You reached Level ${player.level}!`);
-        updatePlayerStats(); // Frissíti a játékos statokat az új szint alapján
-        checkPlayerLVUp(); // Rekurzív hívás, ha több szintet léptünk (gyors egymásutáni szintlépés)
+        updatePlayerStats();
+        checkPlayerLVUp();
     }
 }
 
-// Halál kezelése
 export function death() {
     appendToLog("Game Over!");
     document.getElementById('deathButton').style.display = 'block';
-    toggleGameButtons(false); // Letiltjuk az összes játék gombot halál esetén
+    // Letiltjuk az összes gombot halál esetén, kivéve a "YOU DIED!" gombot
+    toggleGameButtons(false);
+    togglePlayerActionButtons(false);
+    hideAllCombatButtons(true); // Minden gomb letiltása
 }
