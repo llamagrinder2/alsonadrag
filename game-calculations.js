@@ -61,56 +61,50 @@ export function calculateMobStats(floorLevel) {
 
     // XP és Arany jutalom előzetes számítása a mob generált HP-jához,
     // eltároljuk a mob objektumban, hogy később ne kelljen újra számolni.
-    // EZ A KULCS a PDF-ben leírt Delta képlet pontos implementálásához!
     calculateExpAndGoldRewardForMob(floorLevel, mob.maxHp, minHpAtFloor, maxHpAtFloor);
 }
 
 // XP és Arany jutalom kiszámítása a mob HP-ja alapján (interpolációval)
-// Ez a függvény most már belső, és a calculateMobStats hívja meg
 export function calculateExpAndGoldRewardForMob(floorLevel, mobActualHp, minHpAtFloor, maxHpAtFloor) {
     // --- XP számítás ---
     const minExp = calculateUniversalValue(floorLevel, gameModifiers.MOB_XP_Y, gameModifiers.MOB_XP_Z_MIN);
     const maxExp = calculateUniversalValue(floorLevel, gameModifiers.MOB_XP_Y, gameModifiers.MOB_XP_Z_MAX);
 
-    mob.minMobXpCalculated = Math.ceil(minExp); // Eltároljuk a mob.minMobXpCalculated-ban
-    mob.maxMobXpCalculated = Math.ceil(maxExp); // Eltároljuk a mob.maxMobXpCalculated-ban
+    mob.minMobXpCalculated = Math.ceil(minExp);
+    mob.maxMobXpCalculated = Math.ceil(maxExp);
 
     let xpReward = minExp; 
-    if (maxHpAtFloor > minHpAtFloor) { // Csak akkor interpolálunk, ha van tartomány
+    if (maxHpAtFloor > minHpAtFloor) {
         const deltaExp = (maxExp - minExp) / (maxHpAtFloor - minHpAtFloor);
-        // Az n index kiszámítása a mob aktuális HP-ja alapján (a PDF szerint: (MobHP - MinHP) + 1)
         const nIndexForHp = (mobActualHp - minHpAtFloor) + 1;
         xpReward = minExp + (nIndexForHp - 1) * deltaExp;
     }
-    mob.xpReward = Math.ceil(xpReward); // Felfelé kerekítés
+    mob.xpReward = Math.ceil(xpReward);
 
     // --- Arany számítás ---
     const minGold = calculateUniversalValue(floorLevel, gameModifiers.GOLD_DROP_MIN_Y, gameModifiers.GOLD_DROP_MIN_Z);
     const maxGold = calculateUniversalValue(floorLevel, gameModifiers.GOLD_DROP_MAX_Y, gameModifiers.GOLD_DROP_MAX_Z);
 
-    mob.minMobGoldCalculated = Math.ceil(minGold); // Eltároljuk a mob.minMobGoldCalculated-ban
-    mob.maxMobGoldCalculated = Math.ceil(maxGold); // Eltároljuk a mob.maxMobGoldCalculated-ban
+    mob.minMobGoldCalculated = Math.ceil(minGold);
+    mob.maxMobGoldCalculated = Math.ceil(maxGold);
 
     let goldReward = minGold; 
-    if (maxHpAtFloor > minHpAtFloor) { // Csak akkor interpolálunk, ha van tartomány
+    if (maxHpAtFloor > minHpAtFloor) {
         const deltaGold = (maxGold - minGold) / (maxHpAtFloor - minHpAtFloor);
-        // Az n index ugyanaz, mint az XP-nél, hiszen ugyanazon a HP-n alapul
         const nIndexForHp = (mobActualHp - minHpAtFloor) + 1;
         goldReward = minGold + (nIndexForHp - 1) * deltaGold;
     }
-    mob.coinReward = Math.ceil(goldReward); // Felfelé kerekítés
+    mob.coinReward = Math.ceil(goldReward);
 }
 
 // Potion árak és gyógyítási értékek kiszámítása a játékos szintje alapján
 export function calculatePotionStats(potionLevel) {
-    const level = player.level; // Játékos szintje!
+    const level = player.level;
 
-    // A PDF nem specifikálta a POTION_PRICE_Y-t, így a legközelebbi GOLD_DROP_Y-t használom.
-    // Ez egy feltételezés. Ha van konkrét Y érték a potik árához, azt kellene használni.
     const averageGoldAtPlayerLevel = calculateUniversalValue(
         level, 
-        gameModifiers.GOLD_DROP_MIN_Y, // Feltételezve, hogy a potion árak Y-ja megegyezik az arany drop Y-jával
-        (gameModifiers.GOLD_DROP_MIN_Z + gameModifiers.GOLD_DROP_MAX_Z) / 2 // Átlag Z az arany drop Z-kből
+        gameModifiers.GOLD_DROP_MIN_Y,
+        (gameModifiers.GOLD_DROP_MIN_Z + gameModifiers.GOLD_DROP_MAX_Z) / 2
     );
 
     let price = 0;
@@ -137,18 +131,27 @@ export function calculatePotionStats(potionLevel) {
     return { price: price, heal: healAmount };
 }
 
-// Sebzés számítása (baseAttack + totalDiceRoll * attackMultiplier - targetArmor)
-export function calculateDamage(baseAttack, totalDiceRoll, attackMultiplier, targetArmor) {
-    // A játékos támadás szorzója (baseAttackMultiplier) is beleszámít
-    let calculatedAttack = baseAttack * player.baseAttackMultiplier; // Játékos alap támadás szorzója
-    
-    // Boost Spell hatása, ha aktív
+// Sebzés számítása (baseAttack + totalDiceRoll * attackMultiplier)
+// Nincs targetArmor, mert a mobnak nincs armorja
+export function calculateDamage(baseAttack, totalDiceRoll, attackMultiplier) { // targetArmor paraméter ELTÁVOLÍTVA
+    let calculatedAttack = baseAttack; // Ez a kezdeti támadás érték
+
+    // A játékos támadás szorzója (baseAttackMultiplier) is beleszámít, ha a játékos támad
+    // Ez a `calculateDamage` függvény most már mind játékos, mind mob támadásra használható,
+    // így az attackMultiplier-t használjuk az egyedi szorzókra (fegyver, boost spell, stb.).
+    // Az alap szorzó a hívás helyén adható át.
+
+    // Boost Spell hatása, ha aktív (csak a játékosra vonatkozik)
     if (player.activeSpells.boostSpell) {
+        // Ellenőrizzük, hogy ez a sebzés a JÁTÉKOSTÓL jön-e.
+        // Mivel a player objektumot itt is importáltuk, feltételezzük, hogy a Boost Spell
+        // csak a playerre vonatkozik, és ha aktív, akkor a player támadásánál számít.
+        // Ha a mob támadását számoljuk, a player.activeSpells.boostSpell false lesz.
         calculatedAttack *= (1 + gameModifiers.BOOST_SPELL_MULTIPLIER);
     }
     
-    // A kockadobás és az attackMultiplier (ideiglenes varázslatok, stb.)
-    let damage = (calculatedAttack + totalDiceRoll) * attackMultiplier - targetArmor;
+    // A kockadobás hozzáadása
+    let damage = (calculatedAttack + totalDiceRoll) * attackMultiplier;
     
     return Math.max(0, Math.round(damage)); // Sebzés nem lehet negatív, felfelé kerekítve
 }
