@@ -2,7 +2,7 @@
 
 import { player, mob, gameModifiers } from './game-state.js';
 import { updateUI, appendToLog, showFloatingText } from './ui-manager.js';
-import { checkPlayerLVUp, death } from './game-logic.js'; // calculateValue nem kell ide, mert fix árakat használunk
+import { processCombatTurn  } from './game-logic.js'; // calculateValue nem kell ide, mert fix árakat használunk
 
 const healingButtonsContainer = document.getElementById('healingButtonsContainer');
 
