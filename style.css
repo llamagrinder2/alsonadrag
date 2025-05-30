@@ -1,287 +1,303 @@
 /* General Body and Game Container Styles */
 body {
-    background-color: #000; /* Fekete háttér */
-    color: #00FF00; /* Zöld szöveg, mint az Excelben */
-    font-family: 'Courier New', Courier, monospace;
+    font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /* Teljes képernyő magasság */
+    min-height: 100vh;
     margin: 0;
-    overflow: hidden; /* Elrejti a scrollbart, ha nincs rá szükség */
+    background: url('https://via.placeholder.com/1920x1080/000000/FFFFFF?text=Dungeon+Background') no-repeat center center fixed;
+    background-size: cover;
+    color: #eee;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
 .game-container {
-    display: grid;
-    grid-template-rows: auto 1fr auto; /* Felső sáv, fő terület, alsó sáv */
-    grid-template-columns: 1fr;
-    width: 95vw; /* Kicsit keskenyebb, mint a képernyő */
-    max-width: 1200px; /* Maximum szélesség */
-    height: 95vh; /* Kicsit kisebb, mint a képernyő */
-    background-color: #111; /* Sötétszürke háttér a játéknak */
-    border: 2px solid #00FF00; /* Zöld keret */
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); /* Zöld fényhatás */
-    padding: 10px;
-    box-sizing: border-box;
-    overflow: hidden; /* Ne lógjanak ki a tartalmak */
-}
-
-/* Top Info Section */
-.top-info {
-    display: flex;
-    justify-content: space-around;
-    padding: 5px 0;
-    border-bottom: 1px solid #00FF00;
-    margin-bottom: 10px;
-}
-
-.info-cell {
-    background-color: #004400; /* Sötétebb zöld a celláknak */
-    border: 1px solid #00FF00;
-    padding: 5px 10px;
-    flex-grow: 1; /* Egyenletesen elosztja a helyet */
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); /* Neon kék árnyék */
     text-align: center;
-    margin: 0 2px;
-    min-width: 50px; /* Minimális szélesség a celláknak */
-}
-
-/* Main Area Layout */
-.main-area {
-    display: grid;
-    grid-template-columns: 0.5fr 1fr 0.5fr; /* Bal panel, középső panel, jobb panel */
-    gap: 10px;
-    flex-grow: 1; /* Kitölti a rendelkezésre álló helyet */
-    overflow: hidden; /* Fontos, hogy a belső panelek ne lógjanak ki */
-}
-
-/* Panel Styles */
-.left-panel, .center-panel, .right-panel {
-    background-color: #002200; /* Még sötétebb háttér a paneleknek */
-    border: 1px solid #00FF00;
-    padding: 10px;
-    overflow-y: auto; /* Görgetés, ha túlcsordul a tartalom */
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column; /* Tartalom oszlopban */
-}
-
-.center-panel {
-    align-items: center;
-    justify-content: flex-start; /* Felülről kezdődik a tartalom */
-    text-align: center;
-    overflow-y: auto;
-}
-
-/* HP Bars */
-.hp-bars {
-    width: 100%;
-    margin-bottom: 20px;
+    width: 90%;
+    max-width: 800px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    min-height: 90vh; /* Minimum magasság a jobb elrendezésért */
+    box-sizing: border-box; /* Padding nem növeli a méretet */
 }
 
+/* HP Bar Styles */
 .hp-bar-container {
-    width: 80%; /* HP sávok szélessége */
-    background-color: #333;
-    border: 1px solid #00FF00;
-    height: 25px;
-    position: relative;
+    width: 100%;
+    background-color: #555;
+    border-radius: 5px;
+    height: 15px;
     overflow: hidden;
-    margin: 0 auto;
+    margin-top: 5px;
+    border: 1px solid #333;
 }
 
 .hp-bar {
     height: 100%;
-    width: 100%;
-    background-color: red;
-    transition: width 0.5s ease-out;
+    background-color: #4CAF50; /* Zöld */
+    width: 100%; /* Default 100% */
+    transition: width 0.3s ease-in-out;
+    border-radius: 5px;
 }
 
-.player-hp-bar {
-    background-color: rgb(84, 134, 53); /* Zöld HP sáv */
-}
-
-.mob-hp-bar {
-    background-color: rgb(134, 53, 53); /* Piros HP sáv */
-}
-
-.hp-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px black;
-    z-index: 1;
-}
-
-/* Roll Section */
-.roll-section {
-    margin-top: 20px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-}
-
-/* Dice Roll Displays (ÚJ) */
-.mob-dice-display, .player-dice-display {
-    display: flex;
-    gap: 10px;
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 10px; /* Hely a Roll gomb és a dice display között */
-}
-
-.mob-dice-display {
-    justify-content: flex-start; /* Balra igazítjuk a mob dobásait */
-    width: 80%; /* Szélesség a center-panelen belül */
-}
-
-.player-dice-display {
-    justify-content: flex-end; /* Jobbra igazítjuk a játékos dobásait */
-    width: 80%; /* Szélesség a center-panelen belül */
-}
-
-.dice-result {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    line-height: 30px;
-    text-align: center;
-    border: 1px solid #00FF00;
-    background-color: #004400;
-    color: white;
-    font-weight: bold;
-    font-size: 1.1em;
-}
-
-
-.damage-display {
-    min-height: 20px; /* Helyfoglalás a sebzés kijelzésnek */
-    color: orange;
-    font-weight: bold;
-}
-
-/* Player Action Buttons (ÚJ) */
-.player-action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-    width: 100%;
-    justify-content: center;
-}
-
-/* Item Sections (Potions and Spells) */
-.item-sections {
+/* Combat Info (Player & Mob) */
+.combat-info {
     display: flex;
     justify-content: space-around;
     width: 100%;
+    margin-bottom: 20px;
+}
+
+.player-info, .mob-info {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 300px; /* Alap szélesség */
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    object-fit: cover;
+}
+
+.player-info .hp-bar { background-color: #2196F3; } /* Kék a játékos HP sávnak */
+.mob-info .hp-bar { background-color: #f44336; } /* Piros a mob HP sávnak */
+
+/* Combat Area layout */
+.combat-area {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start; /* Kezdetben felülről igazítva */
+    width: 100%;
     margin-top: 20px;
+    position: relative; /* Ahhoz, hogy a mob-action-prediction-container pozícionálható legyen hozzá képest */
+}
+
+.dice-area {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.player-dice-area {
+    /* Specifikus stílusok a játékos dobókockáinak területére */
+    position: relative; /* Hogy a lebegő szöveg pozícionálható legyen hozzá */
+}
+
+.mob-dice-area {
+    /* Specifikus stílusok a mob dobókockáinak területére */
+    position: relative; /* Fontos! Hogy a mob-action-prediction-container abszolút pozícionálása ehhez viszonyuljon */
+}
+
+
+.dice-results {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Hely a kockák között */
+    margin-top: 5px;
+}
+
+.dice-result {
+    width: 40px; /* Kocka mérete */
+    height: 40px;
+    border: 2px solid #555;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px; /* Kocka ikon mérete */
+    font-weight: bold;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+}
+
+/* ÚJ: Mob akció előrejelzés konténer és ikon */
+.mob-action-prediction-container {
+    position: absolute; /* Abszolút pozícionálás a .mob-dice-area-hoz képest */
+    top: 0px; /* A mob-dice-area tetejéhez képest (finomhangolható) */
+    left: calc(100% + 10px); /* A mob-dice-area jobb szélétől 10px-re (finomhangolható) */
+    transform: translateY(10px); /* Kicsit lejjebb tolva */
+    z-index: 5; /* Hogy a dice eredmények felett legyen */
+}
+
+.mob-action-icon {
+    width: 60px; /* Nagyobb cella az ikonnak */
+    height: 60px;
+    border: 3px solid #777; /* Erősebb keret */
+    background-color: #333; /* Sötét háttér */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px; /* Nagyobb ikon méret */
+    font-weight: bold;
+    border-radius: 8px; /* Lekerekítettebb sarkok */
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.5); /* Kiemeltebb árnyék */
+    color: white; /* Alapértelmezett szín, a JS felülírja */
+    transition: all 0.3s ease-in-out; /* Animáció a színváltáshoz */
+}
+
+/* Színek az ikonokhoz (ezeket a JS fogja beállítani a classList.add/remove segítségével) */
+.mob-action-icon.attack {
+    color: #bbb; /* Szürke */
+    border-color: #888;
+}
+
+.mob-action-icon.defend {
+    color: #4CAF50; /* Zöld (védelmet jelez) */
+    border-color: #388E3C;
+}
+
+.mob-action-icon.heal {
+    color: #2196F3; /* Kék (gyógyítást jelez) */
+    border-color: #1976D2;
+}
+
+
+/* Buttons General */
+.buttons-container {
+    display: flex;
+    flex-wrap: wrap; /* Gombok tördelése kisebb képernyőkön */
+    justify-content: center;
+    gap: 15px; /* Hely a gombcsoportok között */
+    margin-top: 30px;
+    width: 100%;
+}
+
+.combat-buttons, .navigation-buttons, .spell-buttons, .shop-button {
+    display: flex;
+    gap: 10px; /* Hely a gombok között egy csoporton belül */
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.player-action-buttons {
+    display: flex;
     gap: 10px;
 }
 
-.potions-section, .spell-section {
-    border: 1px solid #00FF00;
-    padding: 10px;
-    background-color: #003300;
-    display: flex;
-    flex-direction: column; /* Elemeink oszlopban */
-    gap: 5px;
-    align-items: center;
-}
-
-.potion-slot {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.potion-icon {
-    width: 20px;
-    height: 20px;
-    border: 1px solid #00FF00;
-    display: inline-block;
-}
-
-.potion-icon.red { background-color: red; }
-.potion-icon.blue { background-color: blue; }
-.potion-icon.purple { background-color: purple; }
-
-/* Money Display */
-.money-icon {
-    margin-top: 20px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: gold;
-}
-
-/* Game Log */
-.log-area {
-    flex-grow: 1;
-    background-color: #001100; /* Nagyon sötét zöld */
-    border: 1px solid #00FF00;
-    padding: 5px;
-    font-size: 0.9em;
-    overflow-y: auto;
-    white-space: pre-wrap; /* Sortörés, ha hosszú a szöveg */
-    max-height: 100%; /* Kitölti a rendelkezésre álló helyet */
-}
-
-/* Buttons */
 button {
-    background-color: #006600; /* Sötétzöld gomb háttér */
-    color: #00FF00; /* Világos zöld szöveg */
-    border: 1px solid #00FF00;
-    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.2s, color 0.2s;
-    white-space: nowrap; /* Megakadályozza a szöveg tördelését */
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    min-width: 100px; /* Alapértelmezett gomb szélesség */
 }
 
-button:hover {
-    background-color: #00AA00; /* Világosabb zöld hover */
-    color: black; /* Fekete szöveg hoveren */
+button:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
 button:disabled {
-    background-color: #333;
-    color: #777;
-    border-color: #777;
+    background-color: #6c757d;
     cursor: not-allowed;
+    opacity: 0.7;
 }
 
-/* Bottom Buttons */
-.bottom-buttons {
-    display: flex;
-    justify-content: center;
-    padding-top: 10px;
-    border-top: 1px solid #00FF00;
-    margin-top: 10px;
+/* Specific Button Colors */
+#rollButton { background-color: #ffc107; color: #333; }
+#rollButton:hover:not(:disabled) { background-color: #e0a800; }
+
+#attackActionButton { background-color: #dc3545; }
+#attackActionButton:hover:not(:disabled) { background-color: #c82333; }
+
+#defendActionButton { background-color: #28a745; }
+#defendActionButton:hover:not(:disabled) { background-color: #218838; }
+
+#healActionButton { background-color: #17a2b8; }
+#healActionButton:hover:not(:disabled) { background-color: #138496; }
+
+#goMobButton, #ascendLevelButton, #descendLevelButton { background-color: #6f42c1; }
+#goMobButton:hover:not(:disabled), #ascendLevelButton:hover:not(:disabled), #descendLevelButton:hover:not(:disabled) { background-color: #563d7c; }
+
+#thirdEyeButton, #boostSpellButton { background-color: #6610f2; }
+#thirdEyeButton:hover:not(:disabled), #boostSpellButton:hover:not(:disabled) { background-color: #550ee6; }
+
+#enterShopButton { background-color: #fd7e14; }
+#enterShopButton:hover:not(:disabled) { background-color: #e66a0d; }
+
+#deathButton {
+    background-color: #343a40;
+    color: white;
+    font-size: 24px;
+    padding: 20px 40px;
+    margin-top: 30px;
+    border-radius: 10px;
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    from { transform: scale(1); box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+    to { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 0, 0, 0.8); }
 }
 
 /* Floating Text for Damage/Heal */
 .floating-text {
     position: absolute;
+    font-size: 2em;
     font-weight: bold;
     animation: floatAndFade 1.5s forwards;
-    pointer-events: none; /* Ne akadályozza az egér eseményeket */
-    z-index: 100;
+    pointer-events: none; /* Ne akadályozza az egérkattintásokat */
+    z-index: 10;
+    text-shadow: 2px 2px 3px rgba(0,0,0,0.7);
 }
 
 @keyframes floatAndFade {
     0% {
-        transform: translate(-50%, 0);
         opacity: 1;
+        transform: translateY(0) translateX(-50%);
     }
     100% {
-        transform: translate(-50%, -50px);
         opacity: 0;
+        transform: translateY(-50px) translateX(-50%);
     }
+}
+
+/* Game Log */
+.game-log-container {
+    margin-top: 20px;
+    width: 80%; /* A log szélessége */
+    max-width: 600px;
+    height: 150px; /* A log magassága */
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #eee;
+    overflow: hidden; /* Elrejti a tartalom, ami túlnyúlik */
+}
+
+#gameLog {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    resize: none;
+    color: #eee;
+    font-size: 0.9em;
+    padding: 5px;
+    box-sizing: border-box;
+    overflow-y: auto; /* Görgetés a logban */
 }
 
 /* Modals (Shop) */
@@ -294,134 +310,114 @@ button:disabled {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8); /* Félátlátszó fekete háttér */
-    /*display: flex;*/ 
     justify-content: center;
     align-items: center;
 }
 
 .modal-content {
-    background-color: #003300;
-    padding: 20px;
-    border: 2px solid #00FF00;
-    border-radius: 5px;
+    background-color: #333;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
     width: 80%;
-    max-width: 600px;
-    text-align: center;
+    max-width: 500px;
     position: relative;
-    max-height: 90vh; /* Max magasság */
-    overflow-y: auto; /* Görgetés, ha túlcsordul a tartalom */
+    color: #eee;
 }
 
-.modal-content h2 {
-    color: #00FF00;
-    margin-bottom: 20px;
-}
-
-.modal-content .close-button {
-    color: #00FF00;
+.close-button {
     position: absolute;
     top: 10px;
-    right: 20px;
+    right: 15px;
+    color: #aaa;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #fff;
+    text-decoration: none;
 }
 
 .shop-items-container {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-top: 20px;
 }
 
 .shop-item {
+    background-color: #444;
+    padding: 10px 15px;
+    border-radius: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    border: 1px solid #006600;
-    background-color: #002200;
-    position: relative;
+    position: relative; /* A zár ikon miatt */
 }
 
 .shop-item span {
-    flex-grow: 1;
-    text-align: left;
+    font-size: 1.1em;
+    font-weight: bold;
 }
 
-.shop-item button {
-    margin-left: 10px;
+.buy-item-btn, .buy-potion-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
 }
 
-.item-lock {
+.buy-item-btn:hover:not(:disabled), .buy-potion-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.shop-item button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.shop-reset-button {
+    margin-top: 20px;
+    background-color: #f44336;
+}
+
+.shop-reset-button:hover {
+    background-color: #d32f2f;
+}
+
+.healing-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+/* Lock overlay for shop items */
+.lock-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.7); /* Sötét, áttetsző réteg */
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: bold;
-    font-size: 1.5em;
-    color: red;
+    z-index: 2; /* A gomb felett, de a szöveg alatt */
+    border-radius: 5px;
 }
 
-/* Go Mob Section (New for left panel) */
-.go-mob-section {
-    margin-bottom: 15px;
-}
-
-/* Boss Counter (New for left panel) */
-.boss-counter {
-    margin-bottom: 15px;
-    font-size: 1.1em;
-    font-weight: bold;
-    text-align: center;
-}
-
-/* Level Navigation (New for left panel) */
-.level-navigation {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: auto; /* Alulra igazítja a gombokat a bal panelben */
-    padding-top: 10px;
-    border-top: 1px solid #00FF00;
-}
-
-/* Death Button (initially hidden) */
-#deathButton {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 3em;
-    padding: 20px 40px;
-    background-color: darkred;
-    color: white;
-    border: 3px solid red;
-    z-index: 1000;
-}
-
-/* Healing Buttons Container (in-fight options) */
-#healingButtonsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-    width: 100%; /* Szélesség a panelen belül */
-    align-items: center;
-}
-
-/* Mob Action Prediction (ÚJ) */
-.mob-action-prediction {
-    margin-top: 20px;
-    font-size: 1.1em;
-    font-weight: bold;
-    text-align: center;
-    padding: 10px;
-    border: 1px solid #00FF00;
-    background-color: #003300;
+.lock-overlay img {
+    width: 40px;
+    height: 40px;
+    opacity: 0.8;
 }
