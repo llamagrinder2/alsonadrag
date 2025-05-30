@@ -13,14 +13,16 @@
                 <img src="https://via.placeholder.com/100x100?text=Mob" alt="Mob Image" class="mob-avatar">
                 <div class="hp-info">
                     <p>Name: <span id="mob-name">Goblin</span> (LV<span id="mob-level">1</span>)</p>
-                    <p>HP: <span id="mob-hp">50</span>/<span id="mob-max-hp">50</span></p> <div class="hp-bar-container">
+                    <p>HP: <span id="mob-hp">50</span>/<span id="mob-max-hp">50</span></p>
+                    <div class="hp-bar-container">
                         <div class="hp-bar mob-hp-bar"></div>
                     </div>
                 </div>
                 <div class="dice-and-action-area">
                     <div class="dice-results mob-dice-results">
                         <span id="mob-dice-display"></span> </div>
-                    <div class="mob-action-prediction-container"> <span id="mob-predicted-action" class="mob-action-icon">???</span>
+                    <div class="mob-action-prediction-container">
+                        <span id="mob-predicted-action" class="mob-action-icon">???</span>
                     </div>
                 </div>
             </div>
@@ -30,49 +32,58 @@
                     <span id="player-dice-display"></span> </div>
                 
                 <div class="hp-info">
-                    <p>HP: <span id="player-hp">100</span>/<span id="player-max-hp">100</span></p> <div class="hp-bar-container">
+                    <p>HP: <span id="player-hp">100</span>/<span id="player-max-hp">100</span></p>
+                    <div class="hp-bar-container">
                         <div class="hp-bar player-hp-bar"></div>
                     </div>
                 </div>
 
                 <div class="xp-info">
                     <p>Level: <span id="player-level">1</span></p>
-                    <p>XP: <span id="player-exp">0</span>/<span id="player-next-level-exp">100</span></p> <div class="xp-bar-container">
+                    <p>XP: <span id="player-exp">0</span>/<span id="player-exp-to-next-level">100</span></p> <div class="xp-bar-container">
                         <div class="xp-bar player-xp-bar"></div>
                     </div>
                     <p>Bank: <span id="player-bank">0</span> Gold</p>
                     <p>Attack: <span id="player-attack">0</span></p>
                     <p>Armor: <span id="player-armor">0</span></p>
-                    <p>Floor: <span id="player-floor-level">1</span></p> </div>
+                    <p>Floor: <span id="player-floor-level">1</span></p>
+                </div>
 
-                <div id="potionCountsContainer" class="potion-counts-container"> <p>Potion LV1: <span id="player-potion-1-count">0</span></p>
+                <button id="roll-dice-btn" class="main-action-button">Roll Dice</button>
+
+                <div id="potionCountsContainer" class="potion-counts-container">
+                    <p>Potion LV1: <span id="player-potion-1-count">0</span></p>
                     <p>Potion LV2: <span id="player-potion-2-count">0</span></p>
                     <p>Potion LV3: <span id="player-potion-3-count">0</span></p>
                 </div>
                 
-                <div id="combat-buttons" class="player-action-buttons"> <button id="attack-btn" class="player-action-btn">Attack</button>
-                    <button id="defend-btn" class="player-action-btn">Defend</button>
-                    <button id="heal-btn" class="player-action-btn">Heal</button>
+                <div id="combat-buttons" class="player-action-buttons" style="display: none;">
+                    <button id="attack-btn" class="player-action-btn" disabled>Attack</button>
+                    <button id="defend-btn" class="player-action-btn" disabled>Defend</button>
+                    <button id="heal-btn" class="player-action-btn" disabled>Heal</button>
                 </div>
                 
-                <div id="healing-ui" class="healing-buttons-container"> <button id="use-potion-1">Use LV1 Potion</button>
+                <div id="healing-ui" class="healing-buttons-container" style="display: none;">
+                    <button id="use-potion-1">Use LV1 Potion</button>
                     <button id="use-potion-2">Use LV2 Potion</button>
                     <button id="use-potion-3">Use LV3 Potion</button>
                 </div>
 
             </div>
 
-            <div id="game-buttons" class="navigation-buttons section-frame"> <button id="go-mob-btn">Go Mob</button>
+            <div id="game-buttons" class="navigation-buttons section-frame">
+                <button id="go-mob-btn">Go Mob</button>
                 <button id="descend-level-btn">Descend Level</button>
                 <button id="ascend-level-btn">Ascend Level</button>
-                <button id="shop-btn">Enter Shop</button> </div>
+                <button id="shop-btn">Enter Shop</button>
+            </div>
 
             <div class="bottom-buttons-area">
                 <div class="spell-buttons section-frame">
                     <button id="third-eye-btn">Third Eye</button>
                     <button id="boost-spell-btn">Boost Spell</button>
                 </div>
-                </div>
+            </div>
         </div>
 
         <div class="game-log-container section-frame">
@@ -84,15 +95,21 @@
         <button id="deathButton" class="death-button" style="display: none;">YOU DIED!</button>
     </div>
 
-    <div id="shop-modal" class="modal"> <div class="modal-content section-frame">
-            <span class="close-button" id="shop-exit-btn">&times;</span> <h2>Shop</h2>
+    <div id="shop-modal" class="modal">
+        <div class="modal-content section-frame">
+            <span class="close-button" id="shop-exit-btn">&times;</span>
+            <h2>Shop</h2>
             <div class="shop-items-container">
                 <div class="shop-item">
                     <div class="lock-overlay" id="lock1"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
-                    <span>Bronze Sword</span> <button id="buy-bronze-sword" class="buy-item-btn">Buy (150 Gold)</button> </div>
+                    <span>Bronze Sword</span>
+                    <button id="buy-bronze-sword" class="buy-item-btn">Buy (150 Gold)</button>
+                </div>
                 <div class="shop-item">
                     <div class="lock-overlay" id="lock2"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
-                    <span>Wooden Shield</span> <button id="buy-wooden-shield" class="buy-item-btn">Buy (100 Gold)</button> </div>
+                    <span>Wooden Shield</span>
+                    <button id="buy-wooden-shield" class="buy-item-btn">Buy (100 Gold)</button>
+                </div>
                 <div class="shop-item">
                     <div class="lock-overlay" id="lock3"><img src="https://via.placeholder.com/40x40?text=L" alt="Locked"></div>
                     <span>Whetstone</span>
@@ -118,7 +135,7 @@
                 </div>
             </div>
             <button id="shopResetButton">Reset Shop</button>
-            </div>
+        </div>
     </div>
     
     <script type="module" src="main.js"></script>
